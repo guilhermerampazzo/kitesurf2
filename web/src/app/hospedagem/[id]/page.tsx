@@ -51,6 +51,7 @@ export default function HospedagemDetailPage() {
   const [checking, setChecking] = useState(false)
   const [bookingLoading, setBookingLoading] = useState(false)
   const [totalPrice, setTotalPrice] = useState<number | null>(null)
+  const [isLogged, setIsLogged] = useState<boolean | null>(null)
 
   useEffect(() => {
     accommodationsApi
@@ -58,6 +59,8 @@ export default function HospedagemDetailPage() {
       .then((r) => setAcc(r.data?.data ?? r.data))
       .catch(() => toast.error('Hospedagem não encontrada.'))
   }, [id])
+
+  useEffect(() => { setIsLogged(!!localStorage.getItem('kite_access_token')) }, [])
 
   async function checkAvailability() {
     if (!checkIn || !checkOut) {
@@ -124,7 +127,7 @@ export default function HospedagemDetailPage() {
   return (
     <>
       <Header />
-      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop mb-unit-xl">
+      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop mb-unit-xl pt-2">
         <nav className="flex items-center gap-2 text-body-md text-secondary mb-unit-lg">
           <Link href="/hospedagem" className="hover:text-primary">
             Hospedagem
@@ -228,78 +231,94 @@ export default function HospedagemDetailPage() {
             </div>
           </div>
 
-          {/* Booking sidebar */}
+          {/* Booking sidebar — gated */}
           <aside className="w-full lg:w-[380px] shrink-0">
             <div className="sticky top-32 flex flex-col gap-unit-md">
-              <div className="card-soft p-6">
-                <h2 className="text-title-lg font-display font-extrabold text-on-surface mb-1">Reserve sua estadia</h2>
-                <p className="text-body-md text-secondary mb-4">
-                  {formatPrice(acc.pricePerNight)}
-                  <span className="text-secondary">/noite</span> {acc.cleaningFee ? `+ ${formatPrice(acc.cleaningFee)} limpeza` : ''}
-                </p>
-
-                <div className="flex flex-col gap-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <Input label="Check-in" type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} />
-                    <Input label="Check-out" type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} />
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <label className="text-label-md font-display font-bold text-on-surface-variant uppercase tracking-wider">Hóspedes</label>
-                    <select
-                      value={guests}
-                      onChange={(e) => setGuests(e.target.value)}
-                      className="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-2.5 text-body-md focus:outline-none focus:border-primary cursor-pointer"
-                    >
-                      {Array.from({ length: acc.maxGuests ?? 6 }, (_, i) => i + 1).map((n) => (
-                        <option key={n} value={String(n)}>
-                          {n} hóspede{n > 1 ? 's' : ''}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <Button type="button" variant="secondary" onClick={checkAvailability} loading={checking} className="w-full">
-                    <Icon name="search" size={18} />
-                    Verificar disponibilidade
-                  </Button>
-
-                  {availabilityMsg && (
-                    <div className={`rounded-xl px-4 py-3 text-body-md flex items-center gap-2 ${availabilityOk ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-amber-50 text-amber-800 border border-amber-200'}`}>
-                      <Icon name={availabilityOk ? 'check_circle' : 'info'} size={18} />
-                      {availabilityMsg}
-                    </div>
-                  )}
-
-                  {nights > 0 && (
-                    <div className="bg-surface-container-low rounded-xl p-4 text-body-md">
-                      <div className="flex justify-between">
-                        <span className="text-secondary">
-                          {formatPrice(acc.pricePerNight)} × {nights} noite{nights > 1 ? 's' : ''}
-                        </span>
-                        <span className="font-bold">{formatPrice(acc.pricePerNight * nights)}</span>
-                      </div>
-                      {acc.cleaningFee ? (
-                        <div className="flex justify-between mt-1">
-                          <span className="text-secondary">Taxa de limpeza</span>
-                          <span className="font-bold">{formatPrice(acc.cleaningFee)}</span>
-                        </div>
-                      ) : null}
-                      <div className="border-t border-outline-variant mt-3 pt-3 flex justify-between text-title-lg font-black text-primary">
-                        <span>Total</span>
-                        <span>{formatPrice(totalPrice ?? acc.pricePerNight * nights + (acc.cleaningFee ?? 0))}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  <Button onClick={handleBook} loading={bookingLoading} variant="accent" className="w-full" disabled={availabilityOk === false}>
-                    <Icon name="event_available" size={18} />
-                    Reservar agora
-                  </Button>
-
-                  <p className="text-label-md text-secondary text-center">Confirmação imediata • Cancelamento conforme política do anfitrião</p>
+              {isLogged === null ? (
+                <div className="card-soft p-6">
+                  <div className="h-6 w-32 bg-surface-container animate-pulse rounded mb-4" />
+                  <div className="h-10 bg-surface-container animate-pulse rounded-xl" />
                 </div>
-              </div>
+              ) : isLogged ? (
+                <div className="card-soft p-6">
+                  <h2 className="text-title-lg font-display font-extrabold text-on-surface mb-1">Reserve sua estadia</h2>
+                  <p className="text-body-md text-secondary mb-4">
+                    {formatPrice(acc.pricePerNight)}
+                    <span className="text-secondary">/noite</span> {acc.cleaningFee ? `+ ${formatPrice(acc.cleaningFee)} limpeza` : ''}
+                  </p>
+
+                  <div className="flex flex-col gap-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <Input label="Check-in" type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} />
+                      <Input label="Check-out" type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} />
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-label-md font-display font-bold text-on-surface-variant uppercase tracking-wider">Hóspedes</label>
+                      <select
+                        value={guests}
+                        onChange={(e) => setGuests(e.target.value)}
+                        className="w-full bg-surface-container-low border border-outline-variant rounded-xl px-4 py-2.5 text-body-md focus:outline-none focus:border-primary cursor-pointer"
+                      >
+                        {Array.from({ length: acc.maxGuests ?? 6 }, (_, i) => i + 1).map((n) => (
+                          <option key={n} value={String(n)}>
+                            {n} hóspede{n > 1 ? 's' : ''}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <Button type="button" variant="secondary" onClick={checkAvailability} loading={checking} className="w-full">
+                      <Icon name="search" size={18} />
+                      Verificar disponibilidade
+                    </Button>
+
+                    {availabilityMsg && (
+                      <div className={`rounded-xl px-4 py-3 text-body-md flex items-center gap-2 ${availabilityOk ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-amber-50 text-amber-800 border border-amber-200'}`}>
+                        <Icon name={availabilityOk ? 'check_circle' : 'info'} size={18} />
+                        {availabilityMsg}
+                      </div>
+                    )}
+
+                    {nights > 0 && (
+                      <div className="bg-surface-container-low rounded-xl p-4 text-body-md">
+                        <div className="flex justify-between">
+                          <span className="text-secondary">
+                            {formatPrice(acc.pricePerNight)} × {nights} noite{nights > 1 ? 's' : ''}
+                          </span>
+                          <span className="font-bold">{formatPrice(acc.pricePerNight * nights)}</span>
+                        </div>
+                        {acc.cleaningFee ? (
+                          <div className="flex justify-between mt-1">
+                            <span className="text-secondary">Taxa de limpeza</span>
+                            <span className="font-bold">{formatPrice(acc.cleaningFee)}</span>
+                          </div>
+                        ) : null}
+                        <div className="border-t border-outline-variant mt-3 pt-3 flex justify-between text-title-lg font-black text-primary">
+                          <span>Total</span>
+                          <span>{formatPrice(totalPrice ?? acc.pricePerNight * nights + (acc.cleaningFee ?? 0))}</span>
+                        </div>
+                      </div>
+                    )}
+
+                    <Button onClick={handleBook} loading={bookingLoading} variant="accent" className="w-full" disabled={availabilityOk === false}>
+                      <Icon name="event_available" size={18} />
+                      Reservar agora
+                    </Button>
+
+                    <p className="text-label-md text-secondary text-center">Confirmação imediata • Cancelamento conforme política do anfitrião</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="card-soft p-6 bg-brand-gradient text-white">
+                  <p className="font-display font-black text-white flex items-center gap-2"><Icon name="lock" size={18} /> Entre para reservar</p>
+                  <p className="text-white/80 text-body-md mt-1">Crie sua conta grátis e garanta sua estadia com confirmação imediata.</p>
+                  <div className="flex gap-3 mt-4 flex-wrap">
+                    <Link href="/login" className="bg-white text-primary px-5 py-2 rounded-full font-bold hover:bg-white/90 transition-colors inline-flex items-center gap-1.5"><Icon name="login" size={16} /> Entrar</Link>
+                    <Link href="/cadastro" className="btn-accent px-5 py-2 rounded-full font-bold inline-flex items-center gap-1.5">Criar conta</Link>
+                  </div>
+                </div>
+              )}
 
               {acc.host && (
                 <div className="card-soft p-6">

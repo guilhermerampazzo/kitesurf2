@@ -33,6 +33,7 @@ export default function CursoDetailPage() {
   const [paymentMethod, setPaymentMethod] = useState<'pix' | 'card' | 'boleto' | 'free'>('pix')
   const [progressSaving, setProgressSaving] = useState<string | null>(null)
   const [showPaymentChoice, setShowPaymentChoice] = useState(false)
+  const [isLogged, setIsLogged] = useState<boolean | null>(null)
 
   const load = useCallback(async () => {
     try {
@@ -50,6 +51,7 @@ export default function CursoDetailPage() {
   }, [id])
 
   useEffect(() => { load() }, [load])
+  useEffect(() => { setIsLogged(!!localStorage.getItem('kite_access_token')) }, [])
 
   async function handleEnroll() {
     if (!course) return
@@ -142,7 +144,7 @@ export default function CursoDetailPage() {
   return (
     <>
       <Header />
-      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop mb-unit-xl">
+      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop mb-unit-xl pt-2">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-body-md text-secondary mb-unit-lg flex-wrap">
           <Link href="/" className="hover:text-primary">Home</Link>
@@ -208,39 +210,52 @@ export default function CursoDetailPage() {
                   )}
                 </div>
 
-                {/* Enroll / manage */}
-                <div className="mt-6 flex flex-wrap items-center gap-3">
+                {/* Enroll / manage — gated for logged users */}
+                <div className="mt-6">
                   {!hasAccess ? (
-                    <>
-                      <Button onClick={handleEnroll} variant="accent" loading={enrolling} className="shrink-0">
-                        <Icon name={course.isFree ? 'how_to_reg' : 'shopping_cart'} size={18} />
-                        {course.isFree ? 'Inscrever-se grátis' : showPaymentChoice ? 'Confirmar matrícula' : `Matricular — ${formatPrice(course.price)}`}
-                      </Button>
-                      {!course.isFree && showPaymentChoice && (
-                        <div className="flex items-center gap-2">
-                          {(['pix', 'card', 'boleto'] as const).map((m) => (
-                            <button
-                              key={m}
-                              onClick={() => setPaymentMethod(m)}
-                              className={`px-3 py-1.5 rounded-full text-body-md font-semibold border transition-colors capitalize ${paymentMethod === m ? 'bg-primary text-on-primary border-primary' : 'bg-surface-container-low border-outline-variant hover:border-primary'}`}
-                            >
-                              {m}
-                            </button>
-                          ))}
-                          <button onClick={() => setShowPaymentChoice(false)} className="text-body-md text-secondary hover:text-primary ml-2">cancelar</button>
+                    isLogged === null ? (
+                      <div className="h-12 w-48 bg-surface-container animate-pulse rounded-full" />
+                    ) : isLogged ? (
+                      <div className="flex flex-wrap items-center gap-3">
+                        <Button onClick={handleEnroll} variant="accent" loading={enrolling} className="shrink-0">
+                          <Icon name={course.isFree ? 'how_to_reg' : 'shopping_cart'} size={18} />
+                          {course.isFree ? 'Inscrever-se grátis' : showPaymentChoice ? 'Confirmar matrícula' : `Matricular — ${formatPrice(course.price)}`}
+                        </Button>
+                        {!course.isFree && showPaymentChoice && (
+                          <div className="flex items-center gap-2">
+                            {(['pix', 'card', 'boleto'] as const).map((m) => (
+                              <button
+                                key={m}
+                                onClick={() => setPaymentMethod(m)}
+                                className={`px-3 py-1.5 rounded-full text-body-md font-semibold border transition-colors capitalize ${paymentMethod === m ? 'bg-primary text-on-primary border-primary' : 'bg-surface-container-low border-outline-variant hover:border-primary'}`}
+                              >
+                                {m}
+                              </button>
+                            ))}
+                            <button onClick={() => setShowPaymentChoice(false)} className="text-body-md text-secondary hover:text-primary ml-2">cancelar</button>
+                          </div>
+                        )}
+                        <span className="text-body-md text-secondary flex items-center gap-1">
+                          <Icon name="lock_open" size={14} />
+                          {course.freeLessons > 0 ? `${course.freeLessons} aula(s) grátis` : lessons.filter((l) => l.isPreview || l.isFree).length > 0 ? 'Aulas preview disponíveis' : 'Acesso completo após matrícula'}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="card-soft p-6 bg-brand-gradient text-white">
+                        <p className="font-display font-black text-white">Faça login para se matricular</p>
+                        <p className="text-white/80 text-body-md mt-1">Crie sua conta grátis e tenha acesso completo a todas as aulas deste curso.</p>
+                        <div className="flex gap-3 mt-4 flex-wrap">
+                          <Link href="/login" className="bg-white text-primary px-5 py-2 rounded-full font-bold hover:bg-white/90 transition-colors inline-flex items-center gap-1.5"><Icon name="login" size={16} /> Entrar</Link>
+                          <Link href="/cadastro" className="btn-accent px-5 py-2 rounded-full font-bold inline-flex items-center gap-1.5">Criar conta</Link>
                         </div>
-                      )}
-                      <span className="text-body-md text-secondary flex items-center gap-1">
-                        <Icon name="lock_open" size={14} />
-                        {course.freeLessons > 0 ? `${course.freeLessons} aula(s) grátis` : lessons.filter((l) => l.isPreview || l.isFree).length > 0 ? 'Aulas preview disponíveis' : 'Acesso completo após matrícula'}
-                      </span>
-                    </>
+                      </div>
+                    )
                   ) : (
                     <span className="inline-flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full text-body-md font-bold">
                       <Icon name="check_circle" filled size={18} /> Você está matriculado
                     </span>
                   )}
-                  <Link href={`/escola/curso/${course.id}/editar`} className="ml-auto inline-flex items-center gap-2 text-body-md font-bold text-secondary hover:text-primary transition-colors">
+                  <Link href={`/escola/curso/${course.id}/editar`} className="mt-3 inline-flex items-center gap-2 text-body-md font-bold text-secondary hover:text-primary transition-colors">
                     <Icon name="edit" size={16} /> Editar curso
                   </Link>
                 </div>
@@ -281,10 +296,17 @@ export default function CursoDetailPage() {
                           <p className="text-white/70 text-body-md mt-1 max-w-sm">Matricule-se para desbloquear esta aula e todo o conteúdo do curso.</p>
                         </div>
                         {!hasAccess && (
-                          <Button onClick={handleEnroll} variant="accent" size="sm" loading={enrolling}>
-                            <Icon name="lock_open" size={16} />
-                            {course.isFree ? 'Inscrever grátis' : `Matricular — ${formatPrice(course.price)}`}
-                          </Button>
+                          isLogged ? (
+                            <Button onClick={handleEnroll} variant="accent" size="sm" loading={enrolling}>
+                              <Icon name="lock_open" size={16} />
+                              {course.isFree ? 'Inscrever grátis' : `Matricular — ${formatPrice(course.price)}`}
+                            </Button>
+                          ) : isLogged === false ? (
+                            <div className="flex gap-2">
+                              <Link href="/login" className="bg-white text-primary px-5 py-2 rounded-full font-bold text-body-md">Entrar para desbloquear</Link>
+                              <Link href="/cadastro" className="btn-accent px-5 py-2 rounded-full font-bold text-body-md">Criar conta</Link>
+                            </div>
+                          ) : null
                         )}
                       </div>
                     )

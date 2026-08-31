@@ -44,6 +44,7 @@ export default function ServicoDetailPage() {
   const [notes, setNotes] = useState('')
   const [paymentMethod, setPaymentMethod] = useState('pix')
   const [ordering, setOrdering] = useState(false)
+  const [isLogged, setIsLogged] = useState<boolean | null>(null)
 
   useEffect(() => {
     servicesApi.get(id)
@@ -51,6 +52,8 @@ export default function ServicoDetailPage() {
       .catch(() => toast.error('Serviço não encontrado.'))
       .finally(() => setLoading(false))
   }, [id])
+
+  useEffect(() => { setIsLogged(!!localStorage.getItem('kite_access_token')) }, [])
 
   const qtyNum = useMemo(() => {
     const n = parseFloat(quantity)
@@ -124,7 +127,7 @@ export default function ServicoDetailPage() {
   return (
     <>
       <Header />
-      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop mb-24">
+      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop mb-24 pt-2">
         <nav className="flex items-center gap-2 text-body-md text-secondary mb-6">
           <Link href="/servicos" className="hover:text-primary">Serviços</Link>
           <Icon name="chevron_right" size={16} />
@@ -198,64 +201,84 @@ export default function ServicoDetailPage() {
             </div>
           </div>
 
-          {/* Sidebar – contratação */}
+          {/* Sidebar – contratação — gated */}
           <aside className="w-full lg:w-[380px] shrink-0">
             <div className="sticky top-32 flex flex-col gap-4">
-              <div className="card-soft p-6">
-                <h2 className="text-title-lg font-display font-extrabold text-on-surface mb-5 flex items-center gap-2">
-                  <Icon name="shopping_cart" size={20} className="text-primary" />
-                  Contratar serviço
-                </h2>
-
-                <div className="flex flex-col gap-4">
-                  {service.pricingType === 'fixed' ? (
-                    <div className="bg-surface-container rounded-xl px-4 py-3 flex items-center justify-between">
-                      <span className="text-body-md font-bold text-secondary">Quantidade</span>
-                      <span className="text-body-md font-black text-on-surface">1 unidade · {formatPrice(service.price)}</span>
-                    </div>
-                  ) : (
-                    <Input
-                      label={`Quantidade (${service.pricingType === 'hourly' ? 'horas' : 'diárias'})${service.minHours != null && service.maxHours != null ? ` · ${service.minHours}–${service.maxHours}` : ''}`}
-                      type="number"
-                      min={service.minHours ?? 1}
-                      max={service.maxHours ?? undefined}
-                      step="1"
-                      value={quantity}
-                      onChange={(e) => setQuantity(e.target.value)}
-                      placeholder={service.pricingType === 'hourly' ? 'Ex: 3' : 'Ex: 2'}
-                    />
-                  )}
-
-                  <Input label="Data agendada (opcional)" type="date" value={scheduledDate} onChange={(e) => setScheduledDate(e.target.value)} />
-
-                  <Textarea label="Observações" placeholder="Detalhe o que precisa, local, preferências..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
-
-                  <Select
-                    label="Forma de pagamento"
-                    options={[
-                      { value: 'pix', label: 'PIX' },
-                      { value: 'card', label: 'Cartão' },
-                      { value: 'free', label: 'Gratuito / combinar' },
-                    ]}
-                    value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                  />
-
-                  <div className="bg-primary-fixed/40 dark:bg-primary-container/30 rounded-xl p-4 flex items-center justify-between">
-                    <span className="text-body-md font-bold text-on-surface">Total</span>
-                    <span className="text-title-lg font-display font-black text-primary">{formatPrice(totalPrice || service.price)}</span>
-                  </div>
-
-                  <Button onClick={handleContratar} loading={ordering} variant="accent" className="w-full">
-                    <Icon name="handshake" size={18} />
-                    Contratar por {formatPrice(totalPrice || service.price)}
-                  </Button>
-
-                  <p className="text-label-md text-secondary text-center leading-relaxed">
-                    Ao contratar você concorda com os termos. O prestador será notificado e confirmará o pedido.
-                  </p>
+              {isLogged === null ? (
+                <div className="card-soft p-6">
+                  <div className="h-6 w-32 bg-surface-container animate-pulse rounded mb-4" />
+                  <div className="h-10 bg-surface-container animate-pulse rounded-xl" />
                 </div>
-              </div>
+              ) : isLogged ? (
+                <div className="card-soft p-6">
+                  <h2 className="text-title-lg font-display font-extrabold text-on-surface mb-5 flex items-center gap-2">
+                    <Icon name="shopping_cart" size={20} className="text-primary" />
+                    Contratar serviço
+                  </h2>
+
+                  <div className="flex flex-col gap-4">
+                    {service.pricingType === 'fixed' ? (
+                      <div className="bg-surface-container rounded-xl px-4 py-3 flex items-center justify-between">
+                        <span className="text-body-md font-bold text-secondary">Quantidade</span>
+                        <span className="text-body-md font-black text-on-surface">1 unidade · {formatPrice(service.price)}</span>
+                      </div>
+                    ) : (
+                      <Input
+                        label={`Quantidade (${service.pricingType === 'hourly' ? 'horas' : 'diárias'})${service.minHours != null && service.maxHours != null ? ` · ${service.minHours}–${service.maxHours}` : ''}`}
+                        type="number"
+                        min={service.minHours ?? 1}
+                        max={service.maxHours ?? undefined}
+                        step="1"
+                        value={quantity}
+                        onChange={(e) => setQuantity(e.target.value)}
+                        placeholder={service.pricingType === 'hourly' ? 'Ex: 3' : 'Ex: 2'}
+                      />
+                    )}
+
+                    <Input label="Data agendada (opcional)" type="date" value={scheduledDate} onChange={(e) => setScheduledDate(e.target.value)} />
+
+                    <Textarea label="Observações" placeholder="Detalhe o que precisa, local, preferências..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
+
+                    <Select
+                      label="Forma de pagamento"
+                      options={[
+                        { value: 'pix', label: 'PIX' },
+                        { value: 'card', label: 'Cartão' },
+                        { value: 'free', label: 'Gratuito / combinar' },
+                      ]}
+                      value={paymentMethod}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                    />
+
+                    <div className="bg-primary-fixed/40 dark:bg-primary-container/30 rounded-xl p-4 flex items-center justify-between">
+                      <span className="text-body-md font-bold text-on-surface">Total</span>
+                      <span className="text-title-lg font-display font-black text-primary">{formatPrice(totalPrice || service.price)}</span>
+                    </div>
+
+                    <Button onClick={handleContratar} loading={ordering} variant="accent" className="w-full">
+                      <Icon name="handshake" size={18} />
+                      Contratar por {formatPrice(totalPrice || service.price)}
+                    </Button>
+
+                    <p className="text-label-md text-secondary text-center leading-relaxed">
+                      Ao contratar você concorda com os termos. O prestador será notificado e confirmará o pedido.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="card-soft p-6 bg-brand-gradient text-white">
+                  <p className="font-display font-black text-white flex items-center gap-2"><Icon name="lock" size={18} /> Entre para contratar este serviço</p>
+                  <p className="text-white/80 text-body-md mt-1">Crie sua conta grátis e contrate com pagamento protegido.</p>
+                  <div className="flex gap-3 mt-4 flex-wrap">
+                    <Link href="/login" className="bg-white text-primary px-5 py-2 rounded-full font-bold hover:bg-white/90 transition-colors inline-flex items-center gap-1.5"><Icon name="login" size={16} /> Entrar</Link>
+                    <Link href="/cadastro" className="btn-accent px-5 py-2 rounded-full font-bold inline-flex items-center gap-1.5">Criar conta</Link>
+                  </div>
+                  <div className="mt-4 bg-white/10 rounded-xl px-4 py-3 flex items-center justify-between">
+                    <span className="text-white/80 text-body-md">Total</span>
+                    <span className="text-white font-black text-title-lg">{formatPrice(totalPrice || service.price)}</span>
+                  </div>
+                </div>
+              )}
 
               {/* Seller card desktop */}
               <div className="card-soft p-6 hidden lg:block">

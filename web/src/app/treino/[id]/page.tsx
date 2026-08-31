@@ -49,6 +49,7 @@ export default function TreinoServicePage() {
   const [notes, setNotes] = useState('')
   const [paymentMethod, setPaymentMethod] = useState('pix')
   const [bookingLoading, setBookingLoading] = useState(false)
+  const [isLogged, setIsLogged] = useState<boolean | null>(null)
 
   useEffect(() => {
     trainingApi
@@ -56,6 +57,8 @@ export default function TreinoServicePage() {
       .then((r) => setService(r.data?.data ?? r.data))
       .catch(() => toast.error('Serviço não encontrado.'))
   }, [id])
+
+  useEffect(() => { setIsLogged(!!localStorage.getItem('kite_access_token')) }, [])
 
   async function fetchSlots() {
     if (!date) return
@@ -115,7 +118,7 @@ export default function TreinoServicePage() {
   return (
     <>
       <Header />
-      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop mb-unit-xl">
+      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop mb-unit-xl pt-2">
         <nav className="flex items-center gap-2 text-body-md text-secondary mb-unit-lg">
           <Link href="/treino" className="hover:text-primary">
             Treino
@@ -213,72 +216,88 @@ export default function TreinoServicePage() {
             )}
           </div>
 
-          {/* Booking calendar sidebar */}
+          {/* Booking calendar sidebar — gated */}
           <aside className="w-full lg:w-[380px] shrink-0">
             <div className="sticky top-32 flex flex-col gap-unit-md">
-              <div className="card-soft p-6">
-                <h2 className="text-title-lg font-display font-extrabold text-on-surface mb-4 flex items-center gap-2">
-                  <Icon name="calendar_month" size={20} className="text-primary" />
-                  Agendar horário
-                </h2>
-
-                <div className="flex flex-col gap-4">
-                  <Input label="Data" type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
-
-                  <Button type="button" variant="secondary" onClick={fetchSlots} loading={slotsLoading} className="w-full">
-                    <Icon name="search" size={18} />
-                    Ver horários
-                  </Button>
-
-                  {slots.length > 0 && (
-                    <div>
-                      <p className="text-label-md font-bold uppercase tracking-wider text-secondary mb-2">Horários disponíveis em {formatDate(date)}</p>
-                      <div className="grid grid-cols-3 gap-2">
-                        {slots.map((s) => (
-                          <button
-                            key={s.startTime}
-                            type="button"
-                            disabled={!s.available}
-                            onClick={() => setSelectedSlot(s.startTime)}
-                            className={`py-2.5 rounded-xl text-body-md font-bold border transition-all ${
-                              selectedSlot === s.startTime
-                                ? 'bg-primary text-on-primary border-primary shadow-soft'
-                                : s.available
-                                  ? 'bg-surface-container-lowest border-outline-variant hover:border-primary hover:text-primary'
-                                  : 'bg-surface-container text-outline border-transparent cursor-not-allowed opacity-60'
-                            }`}
-                          >
-                            {s.startTime}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {slots.length === 0 && !slotsLoading && (
-                    <p className="text-body-md text-secondary text-center py-2">Selecione uma data e clique em Ver horários.</p>
-                  )}
-
-                  <Textarea label="Observações (opcional)" placeholder="Ex: primeira aula, tenho lesão no joelho..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
-
-                  <Select
-                    label="Forma de pagamento"
-                    options={[
-                      { value: 'pix', label: 'PIX' },
-                      { value: 'card', label: 'Cartão' },
-                    ]}
-                    value={paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value)}
-                  />
-
-                  <Button onClick={handleBook} loading={bookingLoading} disabled={!selectedSlot} variant="accent" className="w-full">
-                    <Icon name="event_available" size={18} />
-                    Confirmar agendamento
-                  </Button>
-
-                  <p className="text-label-md text-secondary text-center">Você receberá confirmação do treinador em breve.</p>
+              {isLogged === null ? (
+                <div className="card-soft p-6">
+                  <div className="h-6 w-32 bg-surface-container animate-pulse rounded mb-4" />
+                  <div className="h-10 bg-surface-container animate-pulse rounded-xl" />
                 </div>
-              </div>
+              ) : isLogged ? (
+                <div className="card-soft p-6">
+                  <h2 className="text-title-lg font-display font-extrabold text-on-surface mb-4 flex items-center gap-2">
+                    <Icon name="calendar_month" size={20} className="text-primary" />
+                    Agendar horário
+                  </h2>
+
+                  <div className="flex flex-col gap-4">
+                    <Input label="Data" type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+
+                    <Button type="button" variant="secondary" onClick={fetchSlots} loading={slotsLoading} className="w-full">
+                      <Icon name="search" size={18} />
+                      Ver horários
+                    </Button>
+
+                    {slots.length > 0 && (
+                      <div>
+                        <p className="text-label-md font-bold uppercase tracking-wider text-secondary mb-2">Horários disponíveis em {formatDate(date)}</p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {slots.map((s) => (
+                            <button
+                              key={s.startTime}
+                              type="button"
+                              disabled={!s.available}
+                              onClick={() => setSelectedSlot(s.startTime)}
+                              className={`py-2.5 rounded-xl text-body-md font-bold border transition-all ${
+                                selectedSlot === s.startTime
+                                  ? 'bg-primary text-on-primary border-primary shadow-soft'
+                                  : s.available
+                                    ? 'bg-surface-container-lowest border-outline-variant hover:border-primary hover:text-primary'
+                                    : 'bg-surface-container text-outline border-transparent cursor-not-allowed opacity-60'
+                              }`}
+                            >
+                              {s.startTime}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {slots.length === 0 && !slotsLoading && (
+                      <p className="text-body-md text-secondary text-center py-2">Selecione uma data e clique em Ver horários.</p>
+                    )}
+
+                    <Textarea label="Observações (opcional)" placeholder="Ex: primeira aula, tenho lesão no joelho..." value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} />
+
+                    <Select
+                      label="Forma de pagamento"
+                      options={[
+                        { value: 'pix', label: 'PIX' },
+                        { value: 'card', label: 'Cartão' },
+                      ]}
+                      value={paymentMethod}
+                      onChange={(e) => setPaymentMethod(e.target.value)}
+                    />
+
+                    <Button onClick={handleBook} loading={bookingLoading} disabled={!selectedSlot} variant="accent" className="w-full">
+                      <Icon name="event_available" size={18} />
+                      Confirmar agendamento
+                    </Button>
+
+                    <p className="text-label-md text-secondary text-center">Você receberá confirmação do treinador em breve.</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="card-soft p-6 bg-brand-gradient text-white">
+                  <p className="font-display font-black text-white flex items-center gap-2"><Icon name="lock" size={18} /> Entre para agendar seu treino</p>
+                  <p className="text-white/80 text-body-md mt-1">Crie sua conta grátis e reserve horários com os melhores treinadores.</p>
+                  <div className="flex gap-3 mt-4 flex-wrap">
+                    <Link href="/login" className="bg-white text-primary px-5 py-2 rounded-full font-bold hover:bg-white/90 transition-colors inline-flex items-center gap-1.5"><Icon name="login" size={16} /> Entrar</Link>
+                    <Link href="/cadastro" className="btn-accent px-5 py-2 rounded-full font-bold inline-flex items-center gap-1.5">Criar conta</Link>
+                  </div>
+                </div>
+              )}
 
               <div className="p-4 bg-primary-fixed dark:bg-primary-container rounded-xl text-label-md text-on-primary-fixed-variant dark:text-primary-fixed flex items-start gap-2">
                 <Icon name="security" size={16} className="shrink-0 mt-0.5" />

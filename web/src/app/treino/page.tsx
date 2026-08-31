@@ -8,6 +8,7 @@ import { SectionHeading } from '@/components/ui/SectionHeading'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { Badge } from '@/components/ui/Badge'
+import { VerticalCTA } from '@/components/ui/VerticalCTA'
 import { trainingApi } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
 import toast from 'react-hot-toast'
@@ -103,8 +104,8 @@ export default function TreinoPage() {
   return (
     <>
       <Header />
-      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop pb-24">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop pb-24 pt-2">
+        <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
           <div>
             <h1 className="text-display-lg font-display font-black text-primary">
               Treino & <span className="accent-word">Bem-estar</span>
@@ -113,20 +114,15 @@ export default function TreinoPage() {
               Encontre personal trainers, fisioterapeutas e estúdios — agendamento direto com quem entende de performance na água.
             </p>
           </div>
-          <div className="flex gap-3 shrink-0">
-            <Link href="/treino/criar">
-              <Button variant="ghost">
-                <Icon name="add" size={18} />
-                Anunciar serviço
-              </Button>
-            </Link>
-            <Link href="/treino/agenda">
-              <Button variant="accent">
-                <Icon name="calendar_month" size={18} />
-                Minha agenda
-              </Button>
-            </Link>
-          </div>
+          <VerticalCTA
+            vertical="treino"
+            createHref="/treino/criar"
+            createLabel="Anunciar serviço"
+            createIcon="add"
+            mineHref="/treino/agenda"
+            mineLabel="Minha agenda"
+            mineIcon="calendar_month"
+          />
         </div>
 
         {/* Filters */}

@@ -47,6 +47,11 @@ export default function TreinoCriarPage() {
   const [creatingService, setCreatingService] = useState(false)
 
   useEffect(() => {
+    if (!localStorage.getItem('kite_access_token')) {
+      toast.error('Faça login para criar ofertas de treino.')
+      router.push('/login')
+      return
+    }
     trainingApi
       .getTrainer('me')
       .then(() => {
@@ -57,7 +62,7 @@ export default function TreinoCriarPage() {
         setHasProfile(false)
       })
       .finally(() => setProfileLoading(false))
-  }, [])
+  }, [router])
 
   async function handleCreateProfile(e: React.FormEvent) {
     e.preventDefault()

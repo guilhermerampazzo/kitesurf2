@@ -211,7 +211,7 @@ h1, h2, h3, h4 {
 
 /* ── Header offset — espaço abaixo do header fixo ────────────────────────── */
 .header-offset {
-  margin-top: 128px; /* linha principal (72px) + nav de chips (56px) */
+  margin-top: 144px; /* linha principal (72px) + nav de chips (56px) + respiro 16px */
 }
 
 /* ── Botões — pílulas do Design System v2 ────────────────────────────────── */

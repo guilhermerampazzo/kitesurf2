@@ -10,6 +10,7 @@ import { Input, Select } from '@/components/ui/Input'
 import { Badge } from '@/components/ui/Badge'
 import { Icon } from '@/components/ui/Icon'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { VerticalCTA } from '@/components/ui/VerticalCTA'
 import { eventsApi } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
 import toast from 'react-hot-toast'
@@ -158,21 +159,22 @@ export default function EventosPage() {
   return (
     <>
       <Header />
-      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop pb-24">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop pb-24 pt-2">
+        <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
           <SectionHeading
             title={<>Eventos <span className="accent-word">Kite</span></>}
             subtitle="Campeonatos, downwinds, confras e experiências — vento a favor do seu próximo rolê."
             className="!mb-0"
           />
-          <div className="flex items-center gap-3 shrink-0">
-            <Link href="/eventos/meus-ingressos">
-              <Button variant="ghost" size="sm"><Icon name="confirmation_number" size={18} /> Meus ingressos</Button>
-            </Link>
-            <Link href="/eventos/criar">
-              <Button variant="accent" size="sm"><Icon name="add" size={18} /> Criar evento</Button>
-            </Link>
-          </div>
+          <VerticalCTA
+            vertical="eventos"
+            createHref="/eventos/criar"
+            createLabel="Criar evento"
+            createIcon="add"
+            mineHref="/eventos/meus-ingressos"
+            mineLabel="Meus ingressos"
+            mineIcon="confirmation_number"
+          />
         </div>
 
         {/* Filters */}

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { StarRating } from '@/components/ui/StarRating'
+import { VerticalCTA } from '@/components/ui/VerticalCTA'
 import { servicesApi } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
 import toast from 'react-hot-toast'
@@ -117,7 +118,7 @@ export default function ServicosPage() {
   return (
     <>
       <Header />
-      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop pb-24">
+      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop pb-24 pt-2">
         <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
           <div>
             <h1 className="text-headline-lg font-display font-black text-primary section-rule inline-block">
@@ -127,16 +128,15 @@ export default function ServicosPage() {
               Fotografia, vídeo, manutenção, design, aulas e consultoria — contrate direto com profissionais verificados.
             </p>
           </div>
-          <div className="flex gap-3 shrink-0">
-            <Link href="/servicos/pedidos" className="inline-flex items-center gap-2 border-2 border-outline-variant text-on-surface font-display font-bold px-5 py-2.5 rounded-full hover:border-primary hover:text-primary transition-colors text-body-md">
-              <Icon name="receipt_long" size={18} />
-              Meus pedidos
-            </Link>
-            <Link href="/servicos/criar" className="btn-accent inline-flex items-center gap-2 px-6 py-2.5 rounded-full font-display font-extrabold text-body-md shadow-soft hover:shadow-float transition-shadow">
-              <Icon name="add" size={18} />
-              Anunciar serviço
-            </Link>
-          </div>
+          <VerticalCTA
+            vertical="servicos"
+            createHref="/servicos/criar"
+            createLabel="Oferecer serviço"
+            createIcon="add"
+            mineHref="/servicos/pedidos"
+            mineLabel="Meus pedidos"
+            mineIcon="receipt_long"
+          />
         </div>
 
         <form onSubmit={onSearch} className="card-soft p-4 md:p-5 mb-8 flex flex-col gap-4">

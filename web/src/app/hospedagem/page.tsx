@@ -7,6 +7,7 @@ import { Footer } from '@/components/layout/Footer'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { Badge } from '@/components/ui/Badge'
+import { VerticalCTA } from '@/components/ui/VerticalCTA'
 import { accommodationsApi } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
 
@@ -94,8 +95,8 @@ export default function HospedagemPage() {
   return (
     <>
       <Header />
-      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop pb-24">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop pb-24 pt-2">
+        <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
           <div>
             <h1 className="text-display-lg font-display font-black text-primary">
               Hospedagem <span className="accent-word">pé na areia</span>
@@ -105,12 +106,12 @@ export default function HospedagemPage() {
             </p>
             {!loading && <p className="text-body-md text-secondary mt-1">{total} hospedagens encontradas</p>}
           </div>
-          <Link href="/hospedagem/criar">
-            <Button variant="accent">
-              <Icon name="add_home" size={18} />
-              Anunciar hospedagem
-            </Button>
-          </Link>
+          <VerticalCTA
+            vertical="hospedagem"
+            createHref="/hospedagem/criar"
+            createLabel="Anunciar hospedagem"
+            createIcon="add_home"
+          />
         </div>
 
         {/* Filters */}

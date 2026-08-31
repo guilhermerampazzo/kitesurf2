@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { VerticalCTA } from '@/components/ui/VerticalCTA'
 import { blogApi, fashionApi } from '@/lib/api'
 import { formatPrice, formatDate } from '@/lib/utils'
 import toast from 'react-hot-toast'
@@ -72,7 +73,7 @@ export default function ModaPage() {
   return (
     <>
       <Header />
-      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop pb-24">
+      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop pb-24 pt-2">
         {/* Hero */}
         <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
           <div>
@@ -83,10 +84,12 @@ export default function ModaPage() {
               Editorial com tendências da praia à cidade e loja com peças para vestir o lifestyle do vento.
             </p>
           </div>
-          <Link href="/moda/criar" className="btn-accent inline-flex items-center gap-2 px-6 py-2.5 rounded-full font-display font-extrabold text-body-md shadow-soft hover:shadow-float transition-shadow shrink-0">
-            <Icon name="add" size={18} />
-            Criar publicação / produto
-          </Link>
+          <VerticalCTA
+            vertical="moda"
+            createHref="/moda/criar"
+            createLabel="Criar publicação"
+            createIcon="add"
+          />
         </div>
 
         {/* Tabs */}

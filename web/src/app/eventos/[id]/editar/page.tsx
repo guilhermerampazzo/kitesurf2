@@ -55,6 +55,11 @@ export default function EditarEventoPage() {
   const [imageFiles, setImageFiles] = useState<FileList | null>(null)
 
   useEffect(() => {
+    if (!localStorage.getItem('kite_access_token')) {
+      toast.error('Faça login para editar.')
+      router.push('/login')
+      return
+    }
     authApi.me().then((r) => setIsAdmin(!!r.data.isAdmin)).catch(() => {})
     eventsApi.get(id).then((r) => {
       const e = r.data
@@ -151,7 +156,7 @@ export default function EditarEventoPage() {
     return (
       <>
         <Header />
-        <main className="header-offset max-w-3xl mx-auto px-margin-desktop py-16 flex justify-center">
+        <main className="header-offset max-w-3xl mx-auto px-margin-desktop py-16 pt-2 flex justify-center">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </main>
         <Footer />
@@ -162,7 +167,7 @@ export default function EditarEventoPage() {
   return (
     <>
       <Header />
-      <main className="header-offset w-full max-w-3xl mx-auto px-margin-desktop pb-16">
+      <main className="header-offset w-full max-w-3xl mx-auto px-margin-desktop pb-16 pt-2">
         <div className="flex items-center gap-3 mb-6">
           <button onClick={() => router.back()} className="p-2 hover:bg-surface-container rounded-lg">
             <Icon name="arrow_back" size={20}/>

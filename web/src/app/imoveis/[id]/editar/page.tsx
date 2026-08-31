@@ -46,6 +46,14 @@ export default function EditarImovelPage() {
   })
 
   useEffect(() => {
+    if (!localStorage.getItem('kite_access_token')) {
+      toast.error('Faça login para editar.')
+      router.push('/login')
+      return
+    }
+  }, [router])
+
+  useEffect(() => {
     propertiesApi
       .get(id)
       .then((r) => {

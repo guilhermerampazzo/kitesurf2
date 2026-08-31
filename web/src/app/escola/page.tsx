@@ -5,6 +5,7 @@ import { SectionHeading } from '@/components/ui/SectionHeading'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Icon } from '@/components/ui/Icon'
 import { CourseCard } from '@/components/escola/CourseCard'
+import { VerticalCTA } from '@/components/ui/VerticalCTA'
 import type { Course, CourseCategory } from '@/types/escola'
 import type { PaginatedResponse } from '@/types'
 
@@ -78,8 +79,8 @@ export default async function EscolaPage({ searchParams }: { searchParams: Escol
   return (
     <>
       <Header />
-      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop pb-24">
-        {/* Title + Criar Curso */}
+      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop pb-24 pt-2">
+        {/* Title + CTA */}
         <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
           <div>
             <h1 className="text-headline-lg font-display font-black text-primary section-rule inline-block">
@@ -89,22 +90,15 @@ export default async function EscolaPage({ searchParams }: { searchParams: Escol
               Cursos com instrutores certificados — do zero ao avançado. Aprenda kitesurf, wingfoil e kitefoil com quem vive o vento.
             </p>
           </div>
-          <div className="flex items-center gap-3 shrink-0">
-            <Link
-              href="/escola/minhas-aulas"
-              className="inline-flex items-center gap-2 border-2 border-outline-variant text-on-surface font-display font-bold px-5 py-2.5 rounded-full hover:border-primary hover:text-primary transition-colors text-body-md"
-            >
-              <Icon name="auto_stories" size={18} />
-              Minhas aulas
-            </Link>
-            <Link
-              href="/escola/criar"
-              className="btn-accent inline-flex items-center gap-2 px-6 py-2.5 rounded-full font-display font-extrabold text-body-md shadow-soft hover:shadow-float transition-shadow"
-            >
-              <Icon name="add" size={18} />
-              Criar Curso
-            </Link>
-          </div>
+          <VerticalCTA
+            vertical="escola"
+            createHref="/escola/criar"
+            createLabel="Criar Curso"
+            createIcon="add"
+            mineHref="/escola/minhas-aulas"
+            mineLabel="Minhas aulas"
+            mineIcon="auto_stories"
+          />
         </div>
 
         {/* Filters bar */}

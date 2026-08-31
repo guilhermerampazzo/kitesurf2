@@ -48,6 +48,7 @@ export default function ImovelDetailPage() {
   const [property, setProperty] = useState<PropertyDetail | null>(null)
   const [selectedImage, setSelectedImage] = useState(0)
   const [contactLoading, setContactLoading] = useState(false)
+  const [isLogged, setIsLogged] = useState<boolean | null>(null)
 
   useEffect(() => {
     propertiesApi
@@ -55,6 +56,8 @@ export default function ImovelDetailPage() {
       .then((r) => setProperty(r.data?.data ?? r.data))
       .catch(() => toast.error('Imóvel não encontrado.'))
   }, [id])
+
+  useEffect(() => { setIsLogged(!!localStorage.getItem('kite_access_token')) }, [])
 
   async function handleContact() {
     setContactLoading(true)
@@ -88,7 +91,7 @@ export default function ImovelDetailPage() {
   return (
     <>
       <Header />
-      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop mb-unit-xl">
+      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop mb-unit-xl pt-2">
         <nav className="flex items-center gap-2 text-body-md text-secondary mb-unit-lg">
           <Link href="/imoveis" className="hover:text-primary">
             Imóveis
@@ -202,10 +205,23 @@ export default function ImovelDetailPage() {
                   {property.type} • {property.purpose}
                 </p>
 
-                <Button onClick={handleContact} loading={contactLoading} variant="accent" className="w-full mb-3">
-                  <Icon name="chat" size={18} />
-                  Falar com anunciante
-                </Button>
+                {isLogged === null ? (
+                  <div className="h-11 bg-surface-container animate-pulse rounded-full mb-3" />
+                ) : isLogged ? (
+                  <Button onClick={handleContact} loading={contactLoading} variant="accent" className="w-full mb-3">
+                    <Icon name="chat" size={18} />
+                    Falar com anunciante
+                  </Button>
+                ) : (
+                  <div className="card-soft p-5 bg-brand-gradient text-white mb-3">
+                    <p className="font-display font-black text-white flex items-center gap-2"><Icon name="lock" size={16} /> Entre para falar com o vendedor</p>
+                    <p className="text-white/80 text-body-md mt-1">Crie sua conta grátis e converse direto com o anunciante.</p>
+                    <div className="flex gap-3 mt-4 flex-wrap">
+                      <Link href="/login" className="bg-white text-primary px-5 py-2 rounded-full font-bold hover:bg-white/90 transition-colors inline-flex items-center gap-1.5"><Icon name="login" size={16} /> Entrar</Link>
+                      <Link href="/cadastro" className="btn-accent px-5 py-2 rounded-full font-bold inline-flex items-center gap-1.5">Criar conta</Link>
+                    </div>
+                  </div>
+                )}
 
                 <Link href={`/imoveis/${property.id}/editar`} className="block">
                   <Button variant="ghost" className="w-full">

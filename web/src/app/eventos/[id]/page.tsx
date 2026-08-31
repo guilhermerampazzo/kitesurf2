@@ -116,6 +116,7 @@ export default function EventDetailPage() {
   const [featuredLoading, setFeaturedLoading] = useState(false)
   // attendeeInfo per ticketTypeId -> array of objects per ticket
   const [attendeeInfos, setAttendeeInfos] = useState<Record<string, Array<Record<string, string>>>>({})
+  const [isLogged, setIsLogged] = useState<boolean | null>(null)
 
   useEffect(() => {
     eventsApi.get(id)
@@ -123,6 +124,8 @@ export default function EventDetailPage() {
       .catch(() => toast.error('Evento não encontrado.'))
       .finally(() => setLoading(false))
   }, [id])
+
+  useEffect(() => { setIsLogged(!!localStorage.getItem('kite_access_token')) }, [])
 
   const total = useMemo(() => {
     if (!event) return 0
@@ -276,7 +279,7 @@ export default function EventDetailPage() {
   return (
     <>
       <Header />
-      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop pb-16">
+      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop pb-16 pt-2">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-body-md text-secondary mb-4 flex-wrap">
           <Link href="/" className="hover:text-primary">Home</Link>
@@ -432,125 +435,155 @@ export default function EventDetailPage() {
             )}
           </div>
 
-          {/* Right - Checkout */}
+          {/* Right - Checkout — gated */}
           <aside className="w-full lg:w-[380px] shrink-0">
             <div className="sticky top-32 flex flex-col gap-4">
-              <div className="card-soft p-6">
-                <h2 className="text-title-lg font-display font-extrabold text-on-surface mb-1">Ingressos</h2>
-                <p className="text-body-md text-secondary mb-4">Escolha a quantidade e finalize a compra.</p>
+              {isLogged === null ? (
+                <div className="card-soft p-6">
+                  <div className="h-6 w-32 bg-surface-container animate-pulse rounded mb-4" />
+                  <div className="h-10 bg-surface-container animate-pulse rounded-xl" />
+                </div>
+              ) : isLogged ? (
+                <div className="card-soft p-6">
+                  <h2 className="text-title-lg font-display font-extrabold text-on-surface mb-1">Ingressos</h2>
+                  <p className="text-body-md text-secondary mb-4">Escolha a quantidade e finalize a compra.</p>
 
-                {event.ticketTypes.length === 0 ? (
-                  <div className="text-center py-8">
-                    <Icon name="confirmation_number" size={40} className="text-outline-variant mx-auto mb-2"/>
-                    <p className="text-body-md text-secondary">Nenhum ingresso disponível ainda.</p>
-                    <p className="text-body-md text-primary font-bold mt-2">Em breve</p>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-4">
-                    {event.ticketTypes.map((tt) => {
-                      const qty = quantities[tt.id] ?? 0
-                      const sales = isSalesOpen(tt)
-                      const remaining = tt.remaining ?? tt.quantity - tt.sold
-                      return (
-                        <div key={tt.id} className={`border rounded-2xl p-4 ${sales.open ? 'border-outline-variant bg-surface-container-lowest' : 'border-outline-variant bg-surface-container opacity-75'}`}>
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex-1">
-                              <div className="text-body-md font-display font-extrabold text-on-surface">{tt.name}</div>
-                              {tt.description && <div className="text-body-md text-secondary mt-0.5">{tt.description}</div>}
-                              <div className="flex items-center gap-2 mt-2">
-                                <span className={`text-price-display font-black ${tt.price === 0 ? 'text-green-700' : 'text-primary'}`}>{tt.price === 0 ? 'Grátis' : formatPrice(tt.price)}</span>
-                                <span className="text-label-md text-secondary">· {remaining} restantes</span>
-                              </div>
-                              <div className="flex flex-wrap gap-1 mt-2">
-                                {tt.salesStart && <span className="text-[11px] px-2 py-0.5 bg-surface-container rounded-full">Início: {new Date(tt.salesStart).toLocaleDateString('pt-BR')}</span>}
-                                {tt.salesEnd && <span className="text-[11px] px-2 py-0.5 bg-surface-container rounded-full">Fim: {new Date(tt.salesEnd).toLocaleDateString('pt-BR')}</span>}
-                                {tt.requiresInfo && tt.requiresInfo.length > 0 && <span className="text-[11px] px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full inline-flex items-center gap-1"><Icon name="badge" size={10}/> requer dados</span>}
-                              </div>
-                              {!sales.open && <div className="text-label-md text-error font-bold mt-2 inline-flex items-center gap-1"><Icon name="block" size={14}/>{sales.reason}</div>}
-                            </div>
-                            <div className="flex items-center gap-1 shrink-0">
-                              <button onClick={() => updateQuantity(tt, -1)} disabled={!sales.open || qty === 0} className="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center hover:border-primary disabled:opacity-40"><Icon name="remove" size={16}/></button>
-                              <span className="w-8 text-center font-display font-black text-on-surface">{qty}</span>
-                              <button onClick={() => updateQuantity(tt, 1)} disabled={!sales.open} className="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center hover:bg-primary-container disabled:opacity-40"><Icon name="add" size={16}/></button>
-                            </div>
-                          </div>
-
-                          {/* Attendee info per ticket */}
-                          {qty > 0 && tt.requiresInfo && tt.requiresInfo.length > 0 && (
-                            <div className="mt-4 pt-4 border-t border-outline-variant space-y-3">
-                              <div className="text-label-md font-bold uppercase tracking-wider text-secondary">Dados dos participantes — {tt.name}</div>
-                              {Array.from({ length: qty }).map((_, idx) => (
-                                <div key={idx} className="bg-surface-container-low rounded-xl p-3 space-y-2">
-                                  <div className="text-body-md font-bold text-on-surface">Ingresso #{idx + 1}</div>
-                                  <div className="grid grid-cols-1 gap-2">
-                                    {tt.requiresInfo!.map((field) => (
-                                      <Input
-                                        key={field}
-                                        label={field}
-                                        placeholder={`Informe ${field}`}
-                                        value={attendeeInfos[tt.id]?.[idx]?.[field] ?? ''}
-                                        onChange={(e) => setAttendeeField(tt.id, idx, field, e.target.value)}
-                                      />
-                                    ))}
-                                  </div>
+                  {event.ticketTypes.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Icon name="confirmation_number" size={40} className="text-outline-variant mx-auto mb-2"/>
+                      <p className="text-body-md text-secondary">Nenhum ingresso disponível ainda.</p>
+                      <p className="text-body-md text-primary font-bold mt-2">Em breve</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-4">
+                      {event.ticketTypes.map((tt) => {
+                        const qty = quantities[tt.id] ?? 0
+                        const sales = isSalesOpen(tt)
+                        const remaining = tt.remaining ?? tt.quantity - tt.sold
+                        return (
+                          <div key={tt.id} className={`border rounded-2xl p-4 ${sales.open ? 'border-outline-variant bg-surface-container-lowest' : 'border-outline-variant bg-surface-container opacity-75'}`}>
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex-1">
+                                <div className="text-body-md font-display font-extrabold text-on-surface">{tt.name}</div>
+                                {tt.description && <div className="text-body-md text-secondary mt-0.5">{tt.description}</div>}
+                                <div className="flex items-center gap-2 mt-2">
+                                  <span className={`text-price-display font-black ${tt.price === 0 ? 'text-green-700' : 'text-primary'}`}>{tt.price === 0 ? 'Grátis' : formatPrice(tt.price)}</span>
+                                  <span className="text-label-md text-secondary">· {remaining} restantes</span>
                                 </div>
-                              ))}
+                                <div className="flex flex-wrap gap-1 mt-2">
+                                  {tt.salesStart && <span className="text-[11px] px-2 py-0.5 bg-surface-container rounded-full">Início: {new Date(tt.salesStart).toLocaleDateString('pt-BR')}</span>}
+                                  {tt.salesEnd && <span className="text-[11px] px-2 py-0.5 bg-surface-container rounded-full">Fim: {new Date(tt.salesEnd).toLocaleDateString('pt-BR')}</span>}
+                                  {tt.requiresInfo && tt.requiresInfo.length > 0 && <span className="text-[11px] px-2 py-0.5 bg-amber-100 text-amber-800 rounded-full inline-flex items-center gap-1"><Icon name="badge" size={10}/> requer dados</span>}
+                                </div>
+                                {!sales.open && <div className="text-label-md text-error font-bold mt-2 inline-flex items-center gap-1"><Icon name="block" size={14}/>{sales.reason}</div>}
+                              </div>
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button onClick={() => updateQuantity(tt, -1)} disabled={!sales.open || qty === 0} className="w-8 h-8 rounded-full border border-outline-variant flex items-center justify-center hover:border-primary disabled:opacity-40"><Icon name="remove" size={16}/></button>
+                                <span className="w-8 text-center font-display font-black text-on-surface">{qty}</span>
+                                <button onClick={() => updateQuantity(tt, 1)} disabled={!sales.open} className="w-8 h-8 rounded-full bg-primary text-on-primary flex items-center justify-center hover:bg-primary-container disabled:opacity-40"><Icon name="add" size={16}/></button>
+                              </div>
                             </div>
-                          )}
-                        </div>
-                      )
-                    })}
+
+                            {/* Attendee info per ticket */}
+                            {qty > 0 && tt.requiresInfo && tt.requiresInfo.length > 0 && (
+                              <div className="mt-4 pt-4 border-t border-outline-variant space-y-3">
+                                <div className="text-label-md font-bold uppercase tracking-wider text-secondary">Dados dos participantes — {tt.name}</div>
+                                {Array.from({ length: qty }).map((_, idx) => (
+                                  <div key={idx} className="bg-surface-container-low rounded-xl p-3 space-y-2">
+                                    <div className="text-body-md font-bold text-on-surface">Ingresso #{idx + 1}</div>
+                                    <div className="grid grid-cols-1 gap-2">
+                                      {tt.requiresInfo!.map((field) => (
+                                        <Input
+                                          key={field}
+                                          label={field}
+                                          placeholder={`Informe ${field}`}
+                                          value={attendeeInfos[tt.id]?.[idx]?.[field] ?? ''}
+                                          onChange={(e) => setAttendeeField(tt.id, idx, field, e.target.value)}
+                                        />
+                                      ))}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+
+                  {/* Buyer info */}
+                  <div className="mt-6 pt-6 border-t border-outline-variant">
+                    <h3 className="text-title-lg font-bold text-on-surface mb-3">Seus dados</h3>
+                    <div className="flex flex-col gap-3">
+                      <Input label="Nome completo" placeholder="Seu nome" value={buyerInfo.name} onChange={(e) => setBuyerInfo({ ...buyerInfo, name: e.target.value })} required icon="person" />
+                      <Input label="E-mail" type="email" placeholder="seu@email.com" value={buyerInfo.email} onChange={(e) => setBuyerInfo({ ...buyerInfo, email: e.target.value })} required icon="mail" />
+                      <Input label="Telefone / WhatsApp" placeholder="(85) 99999-9999" value={buyerInfo.phone} onChange={(e) => setBuyerInfo({ ...buyerInfo, phone: e.target.value })} icon="phone" />
+                      <Input label="CPF (opcional)" placeholder="000.000.000-00" value={buyerInfo.document} onChange={(e) => setBuyerInfo({ ...buyerInfo, document: e.target.value })} icon="badge" />
+                    </div>
                   </div>
-                )}
 
-                {/* Buyer info */}
-                <div className="mt-6 pt-6 border-t border-outline-variant">
-                  <h3 className="text-title-lg font-bold text-on-surface mb-3">Seus dados</h3>
-                  <div className="flex flex-col gap-3">
-                    <Input label="Nome completo" placeholder="Seu nome" value={buyerInfo.name} onChange={(e) => setBuyerInfo({ ...buyerInfo, name: e.target.value })} required icon="person" />
-                    <Input label="E-mail" type="email" placeholder="seu@email.com" value={buyerInfo.email} onChange={(e) => setBuyerInfo({ ...buyerInfo, email: e.target.value })} required icon="mail" />
-                    <Input label="Telefone / WhatsApp" placeholder="(85) 99999-9999" value={buyerInfo.phone} onChange={(e) => setBuyerInfo({ ...buyerInfo, phone: e.target.value })} icon="phone" />
-                    <Input label="CPF (opcional)" placeholder="000.000.000-00" value={buyerInfo.document} onChange={(e) => setBuyerInfo({ ...buyerInfo, document: e.target.value })} icon="badge" />
+                  {/* Payment method */}
+                  <div className="mt-6">
+                    <label className="text-label-md font-display font-bold uppercase tracking-wider text-on-surface-variant">Forma de pagamento</label>
+                    <Select
+                      label=""
+                      options={[
+                        { value: 'pix', label: 'PIX' },
+                        { value: 'card', label: 'Cartão' },
+                        { value: 'free', label: 'Grátis (quando total zero)' },
+                      ]}
+                      value={total === 0 ? 'free' : paymentMethod}
+                      onChange={(e) => setPaymentMethod(e.target.value as never)}
+                    />
+                    {total === 0 && <p className="text-label-md text-green-700 mt-1 font-semibold">Ingressos gratuitos — sem cobrança.</p>}
+                  </div>
+
+                  {/* Total + buy */}
+                  <div className="mt-6 bg-surface-container-low rounded-2xl p-4">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-body-md text-secondary">Total</span>
+                      <span className="text-price-display font-display font-black text-primary">{total === 0 ? 'Grátis' : formatPrice(total)}</span>
+                    </div>
+                    {hasSelection && <div className="text-label-md text-secondary">{Object.values(quantities).reduce((a,b)=>a+b,0)} ingresso(s)</div>}
+                  </div>
+
+                  <Button onClick={handleBuy} loading={orderLoading} disabled={!hasSelection} className="w-full mt-4" size="lg" variant="accent">
+                    <Icon name="shopping_cart" size={18} />
+                    {total === 0 ? 'Garantir ingressos gratuitos' : `Comprar · ${formatPrice(total)}`}
+                  </Button>
+                  <p className="text-[11px] text-secondary text-center mt-2">Ao comprar você concorda com os termos do evento. Pagamento seguro via KITE360º.</p>
+
+                  {/* Organizer actions */}
+                  <div className="grid grid-cols-2 gap-2 mt-4">
+                    <Link href={`/eventos/${event.id}/ingressos`}><Button variant="ghost" size="sm" className="w-full"><Icon name="settings" size={16}/> Gerenciar ingressos</Button></Link>
+                    <Link href={`/eventos/${event.id}/checkin`}><Button variant="ghost" size="sm" className="w-full"><Icon name="qr_code_scanner" size={16}/> Check-in</Button></Link>
                   </div>
                 </div>
-
-                {/* Payment method */}
-                <div className="mt-6">
-                  <label className="text-label-md font-display font-bold uppercase tracking-wider text-on-surface-variant">Forma de pagamento</label>
-                  <Select
-                    label=""
-                    options={[
-                      { value: 'pix', label: 'PIX' },
-                      { value: 'card', label: 'Cartão' },
-                      { value: 'free', label: 'Grátis (quando total zero)' },
-                    ]}
-                    value={total === 0 ? 'free' : paymentMethod}
-                    onChange={(e) => setPaymentMethod(e.target.value as never)}
-                  />
-                  {total === 0 && <p className="text-label-md text-green-700 mt-1 font-semibold">Ingressos gratuitos — sem cobrança.</p>}
-                </div>
-
-                {/* Total + buy */}
-                <div className="mt-6 bg-surface-container-low rounded-2xl p-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-body-md text-secondary">Total</span>
-                    <span className="text-price-display font-display font-black text-primary">{total === 0 ? 'Grátis' : formatPrice(total)}</span>
+              ) : (
+                <div className="card-soft p-6 bg-brand-gradient text-white">
+                  <p className="font-display font-black text-white flex items-center gap-2"><Icon name="lock" size={18} /> Faça login para comprar ingressos</p>
+                  <p className="text-white/80 text-body-md mt-1">Crie sua conta grátis e garanta seu ingresso com pagamento seguro e QR code.</p>
+                  <div className="flex gap-3 mt-4 flex-wrap">
+                    <Link href="/login" className="bg-white text-primary px-5 py-2 rounded-full font-bold hover:bg-white/90 transition-colors inline-flex items-center gap-1.5"><Icon name="login" size={16} /> Entrar</Link>
+                    <Link href="/cadastro" className="btn-accent px-5 py-2 rounded-full font-bold inline-flex items-center gap-1.5">Criar conta</Link>
                   </div>
-                  {hasSelection && <div className="text-label-md text-secondary">{Object.values(quantities).reduce((a,b)=>a+b,0)} ingresso(s)</div>}
+                  {event.ticketTypes.length > 0 && (
+                    <div className="mt-5 pt-5 border-t border-white/20">
+                      <p className="text-white/60 text-label-md uppercase tracking-wider font-bold mb-2">Ingressos disponíveis</p>
+                      <div className="flex flex-col gap-2">
+                        {event.ticketTypes.slice(0, 3).map((tt) => (
+                          <div key={tt.id} className="flex items-center justify-between bg-white/10 rounded-xl px-3 py-2">
+                            <span className="text-white text-body-md font-semibold truncate">{tt.name}</span>
+                            <span className="text-white font-black">{tt.price === 0 ? 'Grátis' : formatPrice(tt.price)}</span>
+                          </div>
+                        ))}
+                        {event.ticketTypes.length > 3 && <span className="text-white/60 text-body-md">+ {event.ticketTypes.length - 3} tipos</span>}
+                      </div>
+                    </div>
+                  )}
                 </div>
-
-                <Button onClick={handleBuy} loading={orderLoading} disabled={!hasSelection} className="w-full mt-4" size="lg" variant="accent">
-                  <Icon name="shopping_cart" size={18} />
-                  {total === 0 ? 'Garantir ingressos gratuitos' : `Comprar · ${formatPrice(total)}`}
-                </Button>
-                <p className="text-[11px] text-secondary text-center mt-2">Ao comprar você concorda com os termos do evento. Pagamento seguro via KITE360º.</p>
-
-                {/* Organizer actions */}
-                <div className="grid grid-cols-2 gap-2 mt-4">
-                  <Link href={`/eventos/${event.id}/ingressos`}><Button variant="ghost" size="sm" className="w-full"><Icon name="settings" size={16}/> Gerenciar ingressos</Button></Link>
-                  <Link href={`/eventos/${event.id}/checkin`}><Button variant="ghost" size="sm" className="w-full"><Icon name="qr_code_scanner" size={16}/> Check-in</Button></Link>
-                </div>
-              </div>
+              )}
 
               <div className="card-soft p-4">
                 <h3 className="text-body-md font-bold text-on-surface mb-2 flex items-center gap-2"><Icon name="info" size={16} className="text-primary"/> Dúvidas?</h3>

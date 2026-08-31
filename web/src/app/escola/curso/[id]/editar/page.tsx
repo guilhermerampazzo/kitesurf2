@@ -52,6 +52,14 @@ export default function EditarCursoPage() {
   const [lessonSaving, setLessonSaving] = useState(false)
 
   useEffect(() => {
+    if (!localStorage.getItem('kite_access_token')) {
+      toast.error('Faça login para editar.')
+      router.push('/login')
+      return
+    }
+  }, [router])
+
+  useEffect(() => {
     kiteSchoolApi.listCategories()
       .then((r) => {
         const cats: CourseCategory[] = Array.isArray(r.data) ? r.data : r.data.data ?? []

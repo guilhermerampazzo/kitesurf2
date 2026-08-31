@@ -64,8 +64,13 @@ export default function CriarEventoPage() {
   const [imageFiles, setImageFiles] = useState<FileList | null>(null)
 
   useEffect(() => {
+    if (!localStorage.getItem('kite_access_token')) {
+      toast.error('Faça login para criar eventos.')
+      router.push('/login')
+      return
+    }
     authApi.me().then((r) => setIsAdmin(!!r.data.isAdmin)).catch(() => {})
-  }, [])
+  }, [router])
 
   async function uploadImage(file: File): Promise<string> {
     const fd = new FormData()
@@ -167,7 +172,7 @@ export default function CriarEventoPage() {
   return (
     <>
       <Header />
-      <main className="header-offset w-full max-w-3xl mx-auto px-margin-desktop pb-16">
+      <main className="header-offset w-full max-w-3xl mx-auto px-margin-desktop pb-16 pt-2">
         <div className="flex items-center gap-3 mb-6">
           <button onClick={() => router.back()} className="p-2 hover:bg-surface-container rounded-lg transition-colors">
             <Icon name="arrow_back" size={20} />

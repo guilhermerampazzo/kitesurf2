@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { DashboardSidebar } from '@/components/layout/DashboardSidebar'
 import { Button } from '@/components/ui/Button'
@@ -31,6 +31,12 @@ const FASHION_CATEGORIES = [
 
 export default function ModaCriarPage() {
   const router = useRouter()
+  useEffect(() => {
+    if (!localStorage.getItem('kite_access_token')) {
+      toast.error('Faça login para publicar.')
+      router.push('/login')
+    }
+  }, [router])
   const [activeTab, setActiveTab] = useState<'blog' | 'fashion'>('blog')
 
   // Blog state

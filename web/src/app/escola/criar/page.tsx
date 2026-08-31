@@ -27,6 +27,14 @@ export default function CriarCursoPage() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    if (!localStorage.getItem('kite_access_token')) {
+      toast.error('Faça login para criar cursos.')
+      router.push('/login')
+      return
+    }
+  }, [router])
+
+  useEffect(() => {
     kiteSchoolApi.listCategories()
       .then((r) => {
         const cats: CourseCategory[] = Array.isArray(r.data) ? r.data : r.data.data ?? []
@@ -94,7 +102,7 @@ export default function CriarCursoPage() {
   return (
     <>
       <Header />
-      <main className="header-offset max-w-container mx-auto px-margin-desktop pb-24">
+      <main className="header-offset max-w-container mx-auto px-margin-desktop pb-24 pt-2">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center gap-3 mb-unit-xl">
             <button onClick={() => router.back()} className="p-2 hover:bg-surface-container rounded-lg transition-colors">

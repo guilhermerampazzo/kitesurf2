@@ -41,6 +41,7 @@ export default function VeiculoDetailPage() {
   const [vehicle, setVehicle] = useState<VehicleDetail | null>(null)
   const [selectedImage, setSelectedImage] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [isLogged, setIsLogged] = useState<boolean | null>(null)
 
   useEffect(() => {
     vehiclesApi.get(id)
@@ -48,6 +49,8 @@ export default function VeiculoDetailPage() {
       .catch(() => toast.error('Veículo não encontrado.'))
       .finally(() => setLoading(false))
   }, [id])
+
+  useEffect(() => { setIsLogged(!!localStorage.getItem('kite_access_token')) }, [])
 
   if (loading) {
     return (
@@ -89,7 +92,7 @@ export default function VeiculoDetailPage() {
   return (
     <>
       <Header />
-      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop mb-unit-xl">
+      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop mb-unit-xl pt-2">
         <nav className="flex items-center gap-2 text-body-md text-secondary mb-unit-lg">
           <Link href="/" className="hover:text-primary">Home</Link>
           <Icon name="chevron_right" size={16} />
@@ -196,12 +199,25 @@ export default function VeiculoDetailPage() {
                   )}
                 </div>
 
-                <a href={`#contato`} className="block">
-                  <Button variant="accent" className="w-full mb-3">
-                    <Icon name="chat" size={18} />
-                    Entrar em contato
-                  </Button>
-                </a>
+                {isLogged === null ? (
+                  <div className="h-11 bg-surface-container animate-pulse rounded-full mb-3" />
+                ) : isLogged ? (
+                  <a href={`#contato`} className="block">
+                    <Button variant="accent" className="w-full mb-3">
+                      <Icon name="chat" size={18} />
+                      Entrar em contato
+                    </Button>
+                  </a>
+                ) : (
+                  <div className="card-soft p-5 bg-brand-gradient text-white mb-3">
+                    <p className="font-display font-black text-white flex items-center gap-2"><Icon name="lock" size={16} /> Entre para falar com o vendedor</p>
+                    <p className="text-white/80 text-body-md mt-1">Crie sua conta grátis e negocie direto com o vendedor.</p>
+                    <div className="flex gap-3 mt-4 flex-wrap">
+                      <Link href="/login" className="bg-white text-primary px-5 py-2 rounded-full font-bold hover:bg-white/90 transition-colors inline-flex items-center gap-1.5"><Icon name="login" size={16} /> Entrar</Link>
+                      <Link href="/cadastro" className="btn-accent px-5 py-2 rounded-full font-bold inline-flex items-center gap-1.5">Criar conta</Link>
+                    </div>
+                  </div>
+                )}
 
                 <div className="p-3 bg-primary-fixed dark:bg-primary-container rounded-xl text-label-md text-on-primary-fixed-variant dark:text-primary-fixed flex items-start gap-2">
                   <Icon name="security" size={16} className="shrink-0 mt-0.5" />
