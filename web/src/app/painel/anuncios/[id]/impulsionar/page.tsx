@@ -51,11 +51,11 @@ export default function ImpulsionarPage() {
             <button onClick={() => router.back()} className="p-2 hover:bg-surface-container rounded-lg transition-colors">
               <Icon name="arrow_back" size={20} />
             </button>
-            <h1 className="text-headline-lg font-bold text-on-surface">Impulsionar Anúncio</h1>
+            <h1 className="text-headline-lg font-display font-black text-primary">Impulsionar Anúncio</h1>
           </div>
 
           {listing && (
-            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-md mb-unit-xl flex items-center gap-unit-md">
+            <div className="card-soft p-unit-md mb-unit-xl flex items-center gap-unit-md">
               {listing.images[0] && (
                 <div className="w-16 h-16 rounded-lg overflow-hidden bg-surface-container-low shrink-0">
                   <img src={listing.images[0].thumb} alt={listing.title} className="w-full h-full object-cover" />

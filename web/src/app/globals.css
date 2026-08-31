@@ -1,9 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Nunito:ital,wght@0,700;0,800;0,900;1,800;1,900&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ══════════════════════════════════════════════════════════════════════════
+   KITE360º — DESIGN SYSTEM v2 "Ocean Marketplace"
+   Paleta preservada (navy profundo + azul céu + laranja coral do sol).
+   Inspiração: estrutura de travel-marketplace — hero busca-flutuante,
+   cards foto-first com pills, trust strip, faixas de conversão, footer navy.
+   ══════════════════════════════════════════════════════════════════════════ */
 
 /* ── Design System Tokens — Light ───────────────────────────────────────── */
 :root {
@@ -65,6 +71,26 @@
   --color-text-tertiary:              #737780;
   --color-surface-subtle:             #f4f3f8;
   --color-border:                     #c3c6d1;
+
+  /* ── Tokens do Design System v2 ─────────────────────────────────────── */
+  --font-display: 'Nunito', sans-serif;
+  --font-body: 'Hanken Grotesk', sans-serif;
+
+  --accent:               #ffb690;   /* laranja coral — CTA de destaque */
+  --accent-strong:        #ff8d5c;
+  --accent-soft:          #ffdbca;
+  --accent-ink:           #341100;   /* texto sobre laranja */
+  --ocean:                #1f477b;
+  --ocean-deep:           #003366;
+
+  --gradient-brand: linear-gradient(135deg, #001e40 0%, #003366 48%, #1f477b 100%);
+  --gradient-sunset: linear-gradient(135deg, #ffb690 0%, #ff8d5c 100%);
+  --gradient-fade: linear-gradient(180deg, rgba(0,30,64,0) 30%, rgba(0,30,64,0.85) 100%);
+
+  --radius-card: 20px;
+  --shadow-soft: 0 2px 12px rgba(0, 30, 64, 0.06);
+  --shadow-float: 0 12px 32px rgba(0, 30, 64, 0.14);
+  --shadow-ring: 0 0 0 4px rgba(31, 71, 123, 0.12);
 }
 
 /* ── Design System Tokens — Dark ────────────────────────────────────────── */
@@ -127,6 +153,18 @@
   --color-text-tertiary:              #8d9199;
   --color-surface-subtle:             #1a1c1f;
   --color-border:                     #43474f;
+
+  /* ── Tokens v2 — dark ───────────────────────────────────────────────── */
+  --accent:               #ffb690;
+  --accent-strong:        #ff8d5c;
+  --accent-soft:          #5d1e00;
+  --accent-ink:           #ffd7bd;
+  --ocean:                #1f477b;
+  --ocean-deep:           #0d1f38;
+
+  --shadow-soft: 0 2px 12px rgba(0, 0, 0, 0.4);
+  --shadow-float: 0 12px 32px rgba(0, 0, 0, 0.55);
+  --shadow-ring: 0 0 0 4px rgba(167, 200, 255, 0.14);
 }
 
 /* ── Base styles ─────────────────────────────────────────────────────────── */
@@ -135,11 +173,21 @@
 }
 
 body {
-  font-family: 'Hanken Grotesk', sans-serif;
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--color-background);
   color: var(--color-on-surface);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.015em;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 
 /* ── Material Symbols ────────────────────────────────────────────────────── */
@@ -163,10 +211,10 @@ body {
 
 /* ── Header offset — espaço abaixo do header fixo ────────────────────────── */
 .header-offset {
-  margin-top: 10rem; /* 160px — cobre header com margem generosa */
+  margin-top: 128px; /* linha principal (72px) + nav de chips (56px) */
 }
 
-/* ── Button primário — sempre azul escuro + texto branco ─────────────────── */
+/* ── Botões — pílulas do Design System v2 ────────────────────────────────── */
 .btn-primary {
   background-color: #001e40 !important;
   color: #ffffff !important;
@@ -176,19 +224,124 @@ body {
   color: #ffffff !important;
 }
 
+/* CTA de destaque (laranja pôr-do-sol) — usar sparingly: anunciar, impulsionar, fechar negócio */
+.btn-accent {
+  background: var(--gradient-sunset);
+  color: var(--accent-ink);
+}
+.dark .btn-accent {
+  background: var(--gradient-sunset);
+  color: #341100;
+}
+
+/* ── Superfícies & efeitos ───────────────────────────────────────────────── */
+.bg-brand-gradient  { background: var(--gradient-brand); }
+.bg-sunset-gradient { background: var(--gradient-sunset); }
+.text-sunset-gradient {
+  background: var(--gradient-sunset);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.card-soft {
+  background: var(--color-surface-container-lowest);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid var(--color-outline-variant);
+}
+.dark .card-soft {
+  background: var(--color-surface-container-low);
+}
+
+/* Palavra em destaque nos títulos — itálico laranja, DNA visual das referências */
+.accent-word {
+  font-style: italic;
+  color: #ff8d5c;
+}
+.dark .accent-word { color: var(--accent); }
+
+/* Barra sublinhado curta sob títulos de seção */
+.section-rule::after {
+  content: '';
+  display: block;
+  width: 56px;
+  height: 5px;
+  border-radius: 999px;
+  margin-top: 10px;
+  background: var(--gradient-sunset);
+}
+.section-rule.centered::after { margin-inline: auto; }
+
+/* Chip de confiança (trust strip) */
+.trust-chip-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-fixed);
+  color: var(--color-on-primary-fixed-variant);
+}
+.dark .trust-chip-icon {
+  background: var(--color-primary-container);
+  color: var(--color-primary-fixed-dim);
+}
+
+/* ── Header — vidro fosco claro/escuro (cores fixas: var() não aceita alpha em Tailwind) ── */
+.header-blur {
+  background-color: rgba(249, 249, 254, 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.dark .header-blur {
+  background-color: rgba(13, 14, 17, 0.88);
+}
+
 /* ── Utilities ───────────────────────────────────────────────────────────── */
 .product-card-hover {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 .product-card-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-float);
 }
 
 .active-nav-link {
-  font-weight: 700;
-  border-bottom: 2px solid var(--color-primary);
+  font-weight: 800;
   color: var(--color-primary);
+}
+.dark .active-nav-link { color: var(--color-primary); }
+
+/* Pílula de navegação por categoria */
+.nav-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--color-on-surface-variant);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.nav-chip:hover { background: var(--color-primary-fixed); color: var(--color-on-primary-fixed); }
+.dark .nav-chip:hover { background: var(--color-primary-container); color: var(--color-primary-fixed); }
+.nav-chip-active {
+  background: var(--gradient-brand);
+  color: #fff !important;
+}
+.dark .nav-chip-active { background: var(--color-primary-container); }
+
+/* Foto com overlay navy para cards de categoria/destaque */
+.photo-scrim::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gradient-fade);
+  pointer-events: none;
 }
 
 /* ── No scrollbar ────────────────────────────────────────────────────────── */
@@ -204,3 +357,11 @@ body {
 .tiptap-editor .ProseMirror h1, h2, h3 { font-weight: 700; margin-bottom: 0.5rem; }
 .tiptap-editor .ProseMirror ul, ol { padding-left: 1.5rem; }
 .tiptap-editor .ProseMirror img { max-width: 100%; border-radius: 0.5rem; margin: 0.5rem 0; }
+
+/* ── Acessibilidade — reduz movimento quando solicitado ─────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

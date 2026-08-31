@@ -46,21 +46,21 @@ export default function CadastroPage() {
   return (
     <main className="flex min-h-screen w-full">
       {/* Hero side */}
-      <section className="hidden md:flex md:w-1/2 lg:w-3/5 relative overflow-hidden bg-primary flex-col justify-end p-unit-xl">
+      <section className="hidden md:flex md:w-1/2 lg:w-3/5 relative overflow-hidden bg-[#001e40] flex-col justify-end p-12">
         <Image src="/imagens/wakesurf.webp" alt="Wakesurf" fill priority sizes="60vw" className="object-cover" />
-        <div className="absolute inset-0 bg-black/60" />
-        <div className="relative z-10 max-w-md mb-unit-xl">
-          <Logo size={60} variant="branco" withWordmark={false} className="mb-unit-lg" />
-          <h2 className="text-headline-lg font-black text-white mb-unit-md leading-tight">
-            Venda seus equipamentos<br />para quem entende.
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(0,30,64,0.55) 0%, rgba(0,30,64,0.92) 100%)' }} />
+        <div className="relative z-10 max-w-md mb-4">
+          <Logo size={60} variant="branco" withWordmark={false} className="mb-6" />
+          <h2 className="text-headline-lg font-display font-black text-white mb-4 leading-tight">
+            Venda seus equipamentos<br />para quem <span className="accent-word">entende.</span>
           </h2>
           <p className="text-body-lg text-white/80">
             Crie sua conta gratuitamente e anuncie para milhares de esportistas aquáticos em todo o Brasil.
           </p>
-          <ul className="mt-unit-lg flex flex-col gap-3">
-            {['Anuncie grátis', 'Chat seguro com bloqueio de contato externo', 'Selo de verificação para mais credibilidade', 'Avaliações e reputação do vendedor'].map((item) => (
+          <ul className="mt-6 flex flex-col gap-3">
+            {['Anuncie grátis em minutos', 'Chat seguro com bloqueio de contato externo', 'Selo de verificação para mais credibilidade', 'Avaliações e reputação do vendedor'].map((item) => (
               <li key={item} className="flex items-center gap-3 text-white/90 text-body-md">
-                <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
+                <span className="material-symbols-outlined text-[20px] text-accent" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
                 {item}
               </li>
             ))}
@@ -69,20 +69,20 @@ export default function CadastroPage() {
       </section>
 
       {/* Form side */}
-      <section className="w-full md:w-1/2 lg:w-2/5 flex flex-col justify-center items-center bg-surface-container-lowest px-margin-mobile md:px-margin-desktop py-unit-xl">
+      <section className="w-full md:w-1/2 lg:w-2/5 flex flex-col justify-center items-center bg-surface-container-lowest px-6 md:px-12 py-12">
         <div className="w-full max-w-sm">
-          <div className="text-center mb-unit-xl">
+          <div className="text-center mb-8">
             <div className="flex justify-center mb-2">
-              <Logo size={54} />
+              <Logo size={54} withWordmark />
             </div>
-            <p className="text-body-md text-secondary mt-unit-xs">Crie sua conta gratuita</p>
+            <p className="text-body-md text-secondary mt-1">Crie sua conta gratuita — sem cartão, sem fidelidade</p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-unit-md">
-            <Input label="Nome completo" placeholder="Seu nome" error={errors.name?.message} {...register('name')} />
-            <Input label="E-mail" type="email" placeholder="seu@email.com" error={errors.email?.message} {...register('email')} />
-            <Input label="Senha" type="password" placeholder="Mínimo 8 caracteres" error={errors.password?.message} {...register('password')} />
-            <Input label="Confirmar senha" type="password" placeholder="Repita a senha" error={errors.confirm?.message} {...register('confirm')} />
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            <Input label="Nome completo" icon="person" placeholder="Seu nome" error={errors.name?.message} {...register('name')} />
+            <Input label="E-mail" icon="alternate_email" type="email" placeholder="seu@email.com" error={errors.email?.message} {...register('email')} />
+            <Input label="Senha" icon="lock" type="password" placeholder="Mínimo 8 caracteres" error={errors.password?.message} {...register('password')} />
+            <Input label="Confirmar senha" icon="lock_reset" type="password" placeholder="Repita a senha" error={errors.confirm?.message} {...register('confirm')} />
 
             <p className="text-[11px] text-secondary text-center">
               Ao cadastrar, você concorda com os{' '}
@@ -91,15 +91,15 @@ export default function CadastroPage() {
               <Link href="/privacidade" className="text-primary hover:underline">Política de Privacidade</Link>.
             </p>
 
-            <Button type="submit" size="lg" loading={isSubmitting} className="w-full">
+            <Button type="submit" size="lg" variant="accent" loading={isSubmitting} className="w-full">
               Criar conta gratuita
             </Button>
           </form>
 
-          <div className="mt-unit-lg text-center">
+          <div className="mt-6 text-center">
             <p className="text-body-md text-secondary">
               Já tem conta?{' '}
-              <Link href="/login" className="font-semibold text-primary hover:underline">Entrar</Link>
+              <Link href="/login" className="font-bold text-primary hover:text-accent-strong transition-colors">Entrar</Link>
             </p>
           </div>
         </div>

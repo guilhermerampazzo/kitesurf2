@@ -53,7 +53,7 @@ export function BannerSlot({ slot, className }: BannerSlotProps) {
           className="object-cover group-hover:scale-105 transition-transform duration-700"
           sizes="250px"
         />
-        <div className="absolute bottom-0 w-full px-3 py-2 bg-primary/70 backdrop-blur-sm text-on-primary text-center">
+        <div className="absolute bottom-0 w-full px-3 py-2 bg-[rgba(0,30,64,0.75)] backdrop-blur-sm text-on-primary text-center">
           <div className="text-[9px] uppercase font-bold tracking-widest opacity-70">Publicidade</div>
         </div>
       </div>

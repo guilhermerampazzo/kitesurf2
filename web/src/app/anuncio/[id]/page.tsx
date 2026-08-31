@@ -83,7 +83,7 @@ export default function AnuncioPage() {
         <div className="flex flex-col lg:flex-row gap-unit-xl">
           {/* Images */}
           <div className="flex-1 min-w-0">
-            <div className="relative aspect-[4/3] rounded-xl overflow-hidden bg-surface-container-low mb-3">
+            <div className="relative aspect-[4/3] rounded-card overflow-hidden bg-surface-container-low mb-3 photo-scrim shadow-soft">
               {listing.images.length > 0 ? (
                 <Image
                   src={listing.images[selectedImage]?.url ?? '/placeholder-product.svg'}
@@ -97,9 +97,12 @@ export default function AnuncioPage() {
                   <Icon name="image_not_supported" size={48} className="text-outline-variant" />
                 </div>
               )}
-              {listing.isBoosted && (
-                <Badge variant="sponsored" className="absolute top-3 left-3">Patrocinado</Badge>
-              )}
+              <div className="absolute bottom-3 left-3 z-10 flex gap-2">
+                {listing.isBoosted && (
+                  <Badge variant="sponsored">Destaque</Badge>
+                )}
+                <Badge variant="onphoto">{listing.condition === 'new' ? 'Novo' : 'Usado'}</Badge>
+              </div>
             </div>
 
             {listing.images.length > 1 && (
@@ -108,7 +111,7 @@ export default function AnuncioPage() {
                   <button
                     key={img.id}
                     onClick={() => setSelectedImage(i)}
-                    className={`w-16 h-16 rounded-lg overflow-hidden shrink-0 border-2 transition-colors ${i === selectedImage ? 'border-primary' : 'border-transparent'}`}
+                    className={`w-16 h-16 rounded-xl overflow-hidden shrink-0 border-2 transition-colors ${i === selectedImage ? 'border-accent-strong' : 'border-transparent opacity-70 hover:opacity-100'}`}
                   >
                     <Image src={img.thumb} alt="" width={64} height={64} className="w-full h-full object-cover" />
                   </button>
@@ -137,7 +140,7 @@ export default function AnuncioPage() {
           {/* Sidebar */}
           <aside className="w-full lg:w-[340px] shrink-0">
             <div className="sticky top-32 flex flex-col gap-unit-md">
-              <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg">
+              <div className="card-soft p-6">
                 <div className="flex items-start justify-between mb-3">
                   <Badge variant={listing.condition === 'new' ? 'new' : 'used'}>
                     {listing.condition === 'new' ? 'Novo' : 'Usado'}
@@ -147,8 +150,8 @@ export default function AnuncioPage() {
                   </button>
                 </div>
 
-                <h1 className="text-title-lg font-bold text-on-surface mb-2">{listing.title}</h1>
-                <div className="text-display-lg font-black text-primary mb-unit-md">{formatPrice(listing.price)}</div>
+                <h1 className="text-title-lg font-display font-extrabold text-on-surface mb-2">{listing.title}</h1>
+                <div className="text-display-lg font-display font-black text-primary mb-unit-md">{formatPrice(listing.price)}</div>
 
                 <div className="flex items-center gap-2 text-body-md text-secondary mb-unit-lg">
                   <Icon name="location_on" size={16} />
@@ -157,22 +160,22 @@ export default function AnuncioPage() {
                   <span>{formatDate(listing.createdAt)}</span>
                 </div>
 
-                <Button onClick={startConversation} loading={contactLoading} className="w-full mb-3">
+                <Button onClick={startConversation} variant="accent" loading={contactLoading} className="w-full mb-3">
                   <Icon name="chat" size={18} />
                   Entrar em contato
                 </Button>
 
-                <div className="p-3 bg-surface-container rounded-lg text-label-md text-secondary flex items-start gap-2">
-                  <Icon name="security" size={16} className="text-primary shrink-0 mt-0.5" />
+                <div className="p-3 bg-primary-fixed dark:bg-primary-container rounded-xl text-label-md text-on-primary-fixed-variant dark:text-primary-fixed flex items-start gap-2">
+                  <Icon name="security" size={16} className="shrink-0 mt-0.5" />
                   Por segurança, nunca compartilhe contatos fora da plataforma.
                 </div>
               </div>
 
               {/* Seller card */}
-              <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg">
-                <h3 className="text-label-md text-on-surface-variant uppercase tracking-wider mb-unit-md">Vendedor</h3>
+              <div className="card-soft p-6">
+                <h3 className="text-label-md text-on-surface-variant uppercase tracking-wider mb-unit-md font-display font-bold">Vendedor</h3>
                 <Link href={`/vendedor/${listing.seller.id}`} className="flex items-center gap-3 group">
-                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg overflow-hidden">
+                  <div className="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed-variant font-bold text-lg overflow-hidden">
                     {listing.seller.avatar
                       ? <Image src={listing.seller.avatar} alt={listing.seller.name} width={48} height={48} className="w-full h-full object-cover" />
                       : listing.seller.name[0].toUpperCase()

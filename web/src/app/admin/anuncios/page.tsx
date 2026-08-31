@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
@@ -8,6 +8,13 @@ import toast from 'react-hot-toast'
 
 const STATUS_TABS = ['all', 'active', 'paused', 'moderation', 'expired']
 const STATUS_LABELS: Record<string, string> = { all: 'Todos', active: 'Ativos', paused: 'Pausados', moderation: 'Em análise', expired: 'Expirados' }
+
+const STATUS_PILL: Record<string, string> = {
+  active: 'bg-green-100 text-green-700',
+  moderation: 'bg-amber-100 text-amber-700',
+  paused: 'bg-secondary-container text-on-secondary-fixed-variant',
+  expired: 'bg-surface-container-high text-on-surface-variant',
+}
 
 export default function AdminListingsPage() {
   const [listings, setListings] = useState<any[]>([])
@@ -37,83 +44,81 @@ export default function AdminListingsPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-[var(--color-surface-subtle)]">
+    <div className="flex min-h-screen bg-background">
       <AdminSidebar />
-      <main className="flex-1 p-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">Anúncios</h1>
-          <p className="text-sm text-[var(--color-text-secondary)]">{total} anúncios</p>
-        </div>
+      <main className="flex-1 p-8 overflow-auto">
+        <div className="max-w-5xl mx-auto">
+          <div className="mb-6">
+            <h1 className="text-headline-lg font-display font-black text-primary">Anúncios</h1>
+            <p className="text-body-md text-on-surface-variant">{total} anúncios</p>
+          </div>
 
-        <div className="mb-4 flex gap-2">
-          {STATUS_TABS.map(s => (
-            <button
-              key={s}
-              onClick={() => { setStatus(s); setPage(1) }}
-              className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                status === s ? 'bg-[var(--color-primary)] text-white' : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-subtle)]'
-              }`}
-            >
-              {STATUS_LABELS[s]}
-            </button>
-          ))}
-        </div>
+          <div className="mb-5 flex gap-2 flex-wrap">
+            {STATUS_TABS.map(s => (
+              <button
+                key={s}
+                onClick={() => { setStatus(s); setPage(1) }}
+                className={`rounded-full px-5 py-2 text-body-md font-display font-bold transition-all ${
+                  status === s ? 'bg-brand-gradient text-white shadow-soft' : 'card-soft !shadow-none text-on-surface-variant hover:text-primary'
+                }`}
+              >
+                {STATUS_LABELS[s]}
+              </button>
+            ))}
+          </div>
 
-        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-[var(--color-border)] bg-[var(--color-surface-subtle)]">
-                <th className="p-4 text-left text-xs font-semibold uppercase text-[var(--color-text-secondary)]">Anúncio</th>
-                <th className="p-4 text-left text-xs font-semibold uppercase text-[var(--color-text-secondary)]">Vendedor</th>
-                <th className="p-4 text-left text-xs font-semibold uppercase text-[var(--color-text-secondary)]">Preço</th>
-                <th className="p-4 text-left text-xs font-semibold uppercase text-[var(--color-text-secondary)]">Status</th>
-                <th className="p-4 text-right text-xs font-semibold uppercase text-[var(--color-text-secondary)]">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan={5} className="p-8 text-center text-[var(--color-text-secondary)]">Carregando...</td></tr>
-              ) : listings.map((listing: any) => (
-                <tr key={listing.id} className="border-b border-[var(--color-border)] last:border-0 hover:bg-[var(--color-surface-subtle)] transition-colors">
-                  <td className="p-4">
-                    <div className="flex items-center gap-3">
-                      {listing.images?.[0] && (
-                        <Image src={listing.images[0].thumb} alt={listing.title} width={48} height={48} className="rounded-lg object-cover" />
-                      )}
-                      <span className="font-medium text-[var(--color-text-primary)] line-clamp-1">{listing.title}</span>
-                    </div>
-                  </td>
-                  <td className="p-4 text-sm text-[var(--color-text-secondary)]">{listing.seller?.name}</td>
-                  <td className="p-4 text-sm font-medium text-[var(--color-text-primary)]">
-                    {listing.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                  </td>
-                  <td className="p-4">
-                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                      listing.status === 'active' ? 'bg-green-100 text-green-700'
-                      : listing.status === 'moderation' ? 'bg-yellow-100 text-yellow-700'
-                      : 'bg-gray-100 text-gray-600'
-                    }`}>{listing.status}</span>
-                  </td>
-                  <td className="p-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      {listing.status !== 'active' && (
-                        <button onClick={() => handleModerate(listing.id, 'active')}
-                          className="rounded-lg bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700 hover:bg-green-100 transition-colors">
-                          Aprovar
-                        </button>
-                      )}
-                      {listing.status !== 'paused' && (
-                        <button onClick={() => handleModerate(listing.id, 'paused')}
-                          className="rounded-lg bg-red-50 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-100 transition-colors">
-                          Remover
-                        </button>
-                      )}
-                    </div>
-                  </td>
+          <div className="card-soft overflow-hidden">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-outline-variant bg-surface-container-low">
+                  <th className="p-4 text-left text-label-md font-display font-bold uppercase tracking-wider text-on-surface-variant">Anúncio</th>
+                  <th className="p-4 text-left text-label-md font-display font-bold uppercase tracking-wider text-on-surface-variant">Vendedor</th>
+                  <th className="p-4 text-left text-label-md font-display font-bold uppercase tracking-wider text-on-surface-variant">Preço</th>
+                  <th className="p-4 text-left text-label-md font-display font-bold uppercase tracking-wider text-on-surface-variant">Status</th>
+                  <th className="p-4 text-right text-label-md font-display font-bold uppercase tracking-wider text-on-surface-variant">Ações</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr><td colSpan={5} className="p-8 text-center text-on-surface-variant">Carregando...</td></tr>
+                ) : listings.map((listing: any) => (
+                  <tr key={listing.id} className="border-b border-outline-variant last:border-0 hover:bg-surface-container-low transition-colors">
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        {listing.images?.[0] && (
+                          <Image src={listing.images[0].thumb} alt={listing.title} width={48} height={48} className="rounded-xl object-cover" />
+                        )}
+                        <span className="font-semibold text-on-surface line-clamp-1">{listing.title}</span>
+                      </div>
+                    </td>
+                    <td className="p-4 text-body-md text-on-surface-variant">{listing.seller?.name}</td>
+                    <td className="p-4 text-body-md font-display font-bold text-on-surface">
+                      {listing.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                    </td>
+                    <td className="p-4">
+                      <span className={`rounded-full px-2.5 py-1 text-[11px] font-display font-extrabold uppercase ${STATUS_PILL[listing.status] ?? 'bg-surface-container-high text-on-surface-variant'}`}>{listing.status}</span>
+                    </td>
+                    <td className="p-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {listing.status !== 'active' && (
+                          <button onClick={() => handleModerate(listing.id, 'active')}
+                            className="rounded-full bg-green-100 px-4 py-1.5 text-[11px] font-display font-bold text-green-700 hover:bg-green-200 transition-colors">
+                            Aprovar
+                          </button>
+                        )}
+                        {listing.status !== 'paused' && (
+                          <button onClick={() => handleModerate(listing.id, 'paused')}
+                            className="rounded-full bg-error-container px-4 py-1.5 text-[11px] font-display font-bold text-on-error-container hover:opacity-80 transition-colors">
+                            Remover
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </main>
     </div>

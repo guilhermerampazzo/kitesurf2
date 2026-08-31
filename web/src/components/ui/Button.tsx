@@ -2,24 +2,25 @@ import { cn } from '@/lib/utils'
 import { ButtonHTMLAttributes, forwardRef } from 'react'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger'
+  variant?: 'primary' | 'accent' | 'secondary' | 'ghost' | 'danger'
   size?: 'sm' | 'md' | 'lg'
   loading?: boolean
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = 'primary', size = 'md', loading, className, children, disabled, ...props }, ref) => {
-    const base = 'inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 active:scale-95 disabled:opacity-50 disabled:pointer-events-none rounded-lg'
+    const base = 'inline-flex items-center justify-center gap-2 font-display font-extrabold transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none rounded-full hover:-translate-y-px'
     const variants = {
-      primary:   'btn-primary hover:opacity-80',
+      primary:   'btn-primary shadow-soft hover:shadow-float',
+      accent:    'btn-accent shadow-soft hover:shadow-float',
       secondary: 'bg-secondary-container text-on-secondary-fixed hover:bg-secondary-fixed-dim',
-      ghost:     'bg-transparent border border-outline-variant text-on-surface hover:bg-surface-container',
+      ghost:     'bg-transparent border-2 border-outline-variant text-on-surface hover:border-primary hover:text-primary',
       danger:    'bg-error text-on-error hover:opacity-90',
     }
     const sizes = {
-      sm: 'px-3 py-1.5 text-body-md',
-      md: 'px-unit-lg py-2 text-body-md',
-      lg: 'px-unit-xl py-unit-md text-title-lg',
+      sm: 'px-4 py-1.5 text-body-md',
+      md: 'px-6 py-2.5 text-body-md',
+      lg: 'px-8 py-3.5 text-title-lg',
     }
     return (
       <button

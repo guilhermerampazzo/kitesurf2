@@ -27,10 +27,10 @@ export default function MinhasAvaliacoesPage() {
 
       <main className="flex-1 p-unit-xl overflow-auto">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-headline-lg font-bold text-on-surface mb-unit-xl">Minhas Avaliações</h1>
+          <h1 className="text-headline-lg font-display font-black text-primary mb-unit-xl">Minhas Avaliações</h1>
 
           {!loading && (
-            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-xl mb-unit-xl flex flex-col md:flex-row gap-unit-xl items-start">
+            <div className="card-soft p-unit-xl mb-unit-xl flex flex-col md:flex-row gap-unit-xl items-start">
               <div className="text-center">
                 <div className="text-[56px] font-black text-primary leading-none">{avg.toFixed(1)}</div>
                 <StarRating value={avg} size={24} />
@@ -66,9 +66,9 @@ export default function MinhasAvaliacoesPage() {
           ) : (
             <div className="flex flex-col gap-unit-md">
               {reviews.map((r) => (
-                <div key={r.id} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg">
+                <div key={r.id} className="card-soft p-unit-lg">
                   <div className="flex items-center gap-3 mb-unit-sm">
-                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                    <div className="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed-variant font-bold">
                       {r.author.name[0]}
                     </div>
                     <div>

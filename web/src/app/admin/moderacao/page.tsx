@@ -49,7 +49,7 @@ export default function ModeracaoPage() {
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-unit-xl">
             <div>
-              <h1 className="text-headline-lg font-bold text-on-surface">Moderação</h1>
+              <h1 className="text-headline-lg font-display font-black text-primary">Moderação</h1>
               <p className="text-body-md text-secondary">Denúncias e conteúdo a revisar</p>
             </div>
           </div>
@@ -81,7 +81,7 @@ export default function ModeracaoPage() {
           ) : (
             <div className="flex flex-col gap-unit-sm">
               {reports.map((r) => (
-                <div key={r.id} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg">
+                <div key={r.id} className="card-soft p-unit-lg">
                   <div className="flex items-start justify-between gap-unit-md flex-wrap">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2 flex-wrap">

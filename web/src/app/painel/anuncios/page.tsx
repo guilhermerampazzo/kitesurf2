@@ -25,7 +25,7 @@ const STATUS_COLORS: Record<Listing['status'], string> = {
   draft:      'bg-surface-container text-secondary',
   sold:       'bg-secondary-container text-on-secondary-fixed-variant',
   expired:    'bg-error-container text-on-error-container',
-  moderation: 'bg-primary/10 text-primary',
+  moderation: 'bg-primary-fixed text-on-primary-fixed-variant',
 }
 
 export default function MeusAnunciosPage() {
@@ -69,7 +69,7 @@ export default function MeusAnunciosPage() {
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center justify-between mb-unit-xl">
             <div>
-              <h1 className="text-headline-lg font-bold text-on-surface">Meus Anúncios</h1>
+              <h1 className="text-headline-lg font-display font-black text-primary">Meus Anúncios</h1>
               <p className="text-body-md text-secondary">{listings.length} anúncios no total</p>
             </div>
             <Link href="/painel/anuncios/novo">
@@ -106,7 +106,7 @@ export default function MeusAnunciosPage() {
           ) : (
             <div className="flex flex-col gap-unit-sm">
               {filtered.map((l) => (
-                <div key={l.id} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-md flex items-center gap-unit-md">
+                <div key={l.id} className="card-soft p-unit-md flex items-center gap-unit-md">
                   {/* Image */}
                   <div className="w-20 h-16 rounded-lg overflow-hidden bg-surface-container-low shrink-0">
                     {l.images[0] ? (

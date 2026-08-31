@@ -75,11 +75,11 @@ export default function EditarAnuncioPage() {
             <button onClick={() => router.back()} className="p-2 hover:bg-surface-container rounded-lg transition-colors">
               <Icon name="arrow_back" size={20} />
             </button>
-            <h1 className="text-headline-lg font-bold text-on-surface">Editar Anúncio</h1>
+            <h1 className="text-headline-lg font-display font-black text-primary">Editar Anúncio</h1>
           </div>
 
           <form onSubmit={onSubmit} className="flex flex-col gap-unit-xl">
-            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg flex flex-col gap-unit-md">
+            <div className="card-soft p-unit-lg flex flex-col gap-unit-md">
               <h2 className="text-title-lg font-bold text-on-surface">Informações básicas</h2>
               <Input label="Título" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
               <div className="grid grid-cols-2 gap-unit-md">
@@ -99,7 +99,7 @@ export default function EditarAnuncioPage() {
               <Select label="Status" options={STATUS_OPTIONS} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as Listing['status'] })} />
             </div>
 
-            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg flex flex-col gap-unit-md">
+            <div className="card-soft p-unit-lg flex flex-col gap-unit-md">
               <h2 className="text-title-lg font-bold text-on-surface">Localização</h2>
               <div className="grid grid-cols-2 gap-unit-md">
                 <Input label="Cidade" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} required />
@@ -107,7 +107,7 @@ export default function EditarAnuncioPage() {
               </div>
             </div>
 
-            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg flex flex-col gap-unit-md">
+            <div className="card-soft p-unit-lg flex flex-col gap-unit-md">
               <h2 className="text-title-lg font-bold text-on-surface">Descrição</h2>
               <TiptapEditor value={form.description} onChange={(v) => setForm({ ...form, description: v })} />
             </div>

@@ -87,12 +87,12 @@ export default function NovoAnuncioPage() {
             <button onClick={() => router.back()} className="p-2 hover:bg-surface-container rounded-lg transition-colors">
               <Icon name="arrow_back" size={20} />
             </button>
-            <h1 className="text-headline-lg font-bold text-on-surface">Criar Anúncio</h1>
+            <h1 className="text-headline-lg font-display font-black text-primary">Criar Anúncio</h1>
           </div>
 
           <form onSubmit={onSubmit} className="flex flex-col gap-unit-xl">
             {/* Basic info */}
-            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg flex flex-col gap-unit-md">
+            <div className="card-soft p-unit-lg flex flex-col gap-unit-md">
               <h2 className="text-title-lg font-bold text-on-surface">Informações básicas</h2>
 
               <Input
@@ -141,7 +141,7 @@ export default function NovoAnuncioPage() {
             </div>
 
             {/* Location */}
-            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg flex flex-col gap-unit-md">
+            <div className="card-soft p-unit-lg flex flex-col gap-unit-md">
               <h2 className="text-title-lg font-bold text-on-surface">Localização</h2>
               <div className="grid grid-cols-2 gap-unit-md">
                 <Input label="Cidade" placeholder="Ex: Fortaleza" value={city} onChange={(e) => setCity(e.target.value)} required />
@@ -150,7 +150,7 @@ export default function NovoAnuncioPage() {
             </div>
 
             {/* Photos */}
-            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg flex flex-col gap-unit-md">
+            <div className="card-soft p-unit-lg flex flex-col gap-unit-md">
               <h2 className="text-title-lg font-bold text-on-surface">Fotos</h2>
               <p className="text-body-md text-secondary">Adicione até 10 fotos. A primeira será a capa do anúncio.</p>
 
@@ -172,7 +172,7 @@ export default function NovoAnuncioPage() {
                 ))}
 
                 {images.length < 10 && (
-                  <label className="aspect-square rounded-lg border-2 border-dashed border-outline-variant flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-colors">
+                  <label className="aspect-square rounded-lg border-2 border-dashed border-outline-variant flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary-fixed transition-colors">
                     <Icon name="add_photo_alternate" size={28} className="text-outline mb-1" />
                     <span className="text-[10px] text-secondary">Adicionar</span>
                     <input type="file" accept="image/*" multiple onChange={handleImageChange} className="hidden" />
@@ -182,7 +182,7 @@ export default function NovoAnuncioPage() {
             </div>
 
             {/* Description with TipTap */}
-            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg flex flex-col gap-unit-md">
+            <div className="card-soft p-unit-lg flex flex-col gap-unit-md">
               <h2 className="text-title-lg font-bold text-on-surface">Descrição</h2>
               <p className="text-body-md text-secondary">
                 Descreva detalhadamente o equipamento. Não inclua informações de contato — use o chat da plataforma.

@@ -42,39 +42,43 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-screen w-full">
       {/* Hero image side */}
-      <section className="hidden md:flex md:w-1/2 lg:w-3/5 relative overflow-hidden bg-primary">
+      <section className="hidden md:flex md:w-1/2 lg:w-3/5 relative overflow-hidden bg-[#001e40]">
         <Image src="/imagens/surfer.webp" alt="Surfista" fill priority sizes="60vw" className="object-cover" />
-        <div className="absolute inset-0 bg-black/60" />
-        <div className="relative z-10 p-unit-xl flex flex-col justify-end h-full">
-          <div className="max-w-md mb-unit-xl">
-            <Logo size={60} variant="branco" withWordmark={false} className="mb-unit-lg" />
-            <h2 className="text-headline-lg font-black text-white mb-unit-md leading-tight">
-              Alta performance<br />no mar.
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, rgba(0,30,64,0.55) 0%, rgba(0,30,64,0.9) 100%)' }} />
+        <div className="relative z-10 p-12 flex flex-col justify-end h-full">
+          <div className="max-w-md mb-10">
+            <Logo size={60} variant="branco" withWordmark={false} className="mb-6" />
+            <h2 className="text-headline-lg font-display font-black text-white mb-4 leading-tight">
+              Alta performance<br />no <span className="accent-word">mar.</span>
             </h2>
             <p className="text-body-lg text-white/80">
               O marketplace definitivo para kitesurf, wingfoil e esportes aquáticos.
               Encontre equipamentos de elite e venda para quem entende de mar.
             </p>
           </div>
-          <div className="flex gap-unit-lg">
-            {['verified_user', 'encrypted', 'security'].map((icon) => (
-              <Icon key={icon} name={icon} size={24} className="text-white/40" />
+          <div className="flex gap-8">
+            {[['verified_user', 'Compra segura'], ['badge', 'Vendedor verificado'], ['support_agent', 'Suporte 7 dias']].map(([icon, label]) => (
+              <div key={icon} className="flex flex-col items-center gap-2 text-white/70">
+                <Icon name={icon} size={26} className="text-accent" />
+                <span className="text-[11px] font-semibold">{label}</span>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
       {/* Form side */}
-      <section className="w-full md:w-1/2 lg:w-2/5 flex flex-col justify-center items-center bg-surface-container-lowest px-margin-mobile md:px-margin-desktop py-unit-xl">
+      <section className="w-full md:w-1/2 lg:w-2/5 flex flex-col justify-center items-center bg-surface-container-lowest px-6 md:px-12 py-12">
         <div className="w-full max-w-sm">
-          <div className="text-center mb-unit-xl">
-            <div className="flex justify-center"><Logo size={54} /></div>
-            <p className="text-body-md text-secondary mt-unit-xs">Entre na sua conta</p>
+          <div className="text-center mb-10">
+            <div className="flex justify-center"><Logo size={54} withWordmark /></div>
+            <p className="text-body-md text-secondary mt-2">Bem-vindo de volta — entre na sua conta</p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-unit-lg">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
             <Input
               label="E-mail"
+              icon="alternate_email"
               type="email"
               placeholder="seu@email.com"
               error={errors.email?.message}
@@ -84,6 +88,7 @@ export default function LoginPage() {
             <div className="relative">
               <Input
                 label="Senha"
+                icon="lock"
                 type={showPw ? 'text' : 'password'}
                 placeholder="••••••••"
                 error={errors.password?.message}
@@ -92,6 +97,7 @@ export default function LoginPage() {
               <button
                 type="button"
                 onClick={() => setShowPw(!showPw)}
+                aria-label={showPw ? 'Ocultar senha' : 'Mostrar senha'}
                 className="absolute right-3 bottom-[10px] text-outline hover:text-on-surface"
               >
                 <Icon name={showPw ? 'visibility_off' : 'visibility'} size={20} />
@@ -99,20 +105,21 @@ export default function LoginPage() {
             </div>
 
             <div className="flex justify-end">
-              <Link href="/recuperar-senha" className="text-label-md text-primary hover:underline">
+              <Link href="/recuperar-senha" className="text-label-md font-semibold text-primary hover:text-accent-strong transition-colors">
                 Esqueci minha senha
               </Link>
             </div>
 
-            <Button type="submit" size="lg" loading={isSubmitting} className="w-full">
+            <Button type="submit" size="lg" variant="accent" loading={isSubmitting} className="w-full">
+              <Icon name="login" size={20} />
               Entrar
             </Button>
           </form>
 
-          <div className="mt-unit-xl text-center">
+          <div className="mt-8 text-center">
             <p className="text-body-md text-secondary">
               Não tem conta?{' '}
-              <Link href="/cadastro" className="font-semibold text-primary hover:underline">
+              <Link href="/cadastro" className="font-bold text-primary hover:text-accent-strong transition-colors">
                 Cadastre-se gratuitamente
               </Link>
             </p>

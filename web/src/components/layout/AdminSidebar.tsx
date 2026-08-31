@@ -11,19 +11,20 @@ const NAV = [
   { label: 'Usuários',       href: '/admin/usuarios',        icon: 'group' },
   { label: 'Anúncios',       href: '/admin/anuncios',        icon: 'sell' },
   { label: 'Planos',         href: '/admin/planos',          icon: 'workspace_premium' },
+  { label: 'Comissões',      href: '/admin/comissoes',       icon: 'percent' },
 ]
 
 export function AdminSidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="w-64 shrink-0 bg-primary text-on-primary min-h-full flex flex-col">
-      <div className="p-unit-lg border-b border-white/10">
-        <Link href="/" className="text-xl font-black text-on-primary">KITE360º</Link>
-        <div className="text-label-md text-on-primary/60 mt-1 uppercase tracking-wider">Admin</div>
+    <aside className="w-64 shrink-0 bg-brand-gradient text-white min-h-full flex flex-col py-5">
+      <div className="px-6 pb-5">
+        <Link href="/" className="text-2xl font-display font-black tracking-tight">KITE360<span className="text-accent">º</span></Link>
+        <div className="text-label-md text-white/50 mt-1 uppercase tracking-widest font-display font-bold">Admin</div>
       </div>
 
-      <nav className="flex flex-col py-unit-sm flex-1">
+      <nav className="flex flex-col flex-1">
         {NAV.map((item) => {
           const active = pathname === item.href || (item.href !== '/admin' && pathname.startsWith(item.href))
           return (
@@ -31,10 +32,10 @@ export function AdminSidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-3 px-unit-lg py-3 text-body-md transition-colors',
+                'flex items-center gap-3 mx-3 my-0.5 px-4 py-2.5 rounded-full text-body-md font-semibold transition-all',
                 active
-                  ? 'bg-white/10 text-white font-bold'
-                  : 'text-on-primary/70 hover:bg-white/5 hover:text-white'
+                  ? 'btn-accent shadow-soft'
+                  : 'text-white/70 hover:bg-white/10 hover:text-white'
               )}
             >
               <Icon name={item.icon} filled={active} size={20} />
@@ -44,8 +45,8 @@ export function AdminSidebar() {
         })}
       </nav>
 
-      <div className="p-unit-lg border-t border-white/10">
-        <Link href="/painel" className="flex items-center gap-3 text-body-md text-on-primary/70 hover:text-white transition-colors">
+      <div className="px-6 pt-4 border-t border-white/10">
+        <Link href="/painel" className="flex items-center gap-3 text-body-md text-white/70 hover:text-accent transition-colors">
           <Icon name="arrow_back" size={20} />
           Voltar ao site
         </Link>

@@ -79,7 +79,7 @@ function ChatContent() {
         {/* Conversations list — hidden on mobile when chat is open */}
         <div className={`${showChat ? 'hidden md:flex' : 'flex'} w-full md:w-80 shrink-0 border-r border-outline-variant bg-surface-container-lowest flex-col`}>
           <div className="p-unit-lg border-b border-outline-variant">
-            <h1 className="text-title-lg font-bold text-on-surface">Mensagens</h1>
+            <h1 className="text-title-lg font-display font-black text-primary">Mensagens</h1>
           </div>
 
           <div className="flex-1 overflow-y-auto">
@@ -94,10 +94,10 @@ function ChatContent() {
                 key={c.id}
                 onClick={() => setActiveConv(c.id)}
                 className={`w-full flex items-center gap-3 px-unit-lg py-unit-md text-left border-b border-outline-variant transition-colors hover:bg-surface-container ${
-                  activeConv === c.id ? 'bg-primary/5 border-l-2 border-l-primary' : ''
+                  activeConv === c.id ? 'bg-primary-fixed border-l-2 border-l-primary' : ''
                 }`}
               >
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
+                <div className="w-10 h-10 rounded-full bg-brand-gradient flex items-center justify-center text-white font-display font-bold shrink-0">
                   {c.otherUser.name[0]}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -113,7 +113,7 @@ function ChatContent() {
                   )}
                 </div>
                 {c.unreadCount > 0 && (
-                  <span className="bg-primary text-on-primary text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">
+                  <span className="btn-accent text-accent-ink text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center shrink-0">
                     {c.unreadCount}
                   </span>
                 )}
@@ -133,7 +133,7 @@ function ChatContent() {
               >
                 <Icon name="arrow_back" size={22} className="text-on-surface" />
               </button>
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
+              <div className="w-10 h-10 rounded-full bg-brand-gradient flex items-center justify-center text-white font-display font-bold shrink-0">
                 {activeConvData.otherUser.name[0]}
               </div>
               <div className="min-w-0">
@@ -143,7 +143,7 @@ function ChatContent() {
             </div>
 
             {/* Security notice */}
-            <div className="px-unit-lg py-2 bg-primary/5 border-b border-outline-variant flex items-center gap-2 text-label-md text-secondary">
+            <div className="px-unit-lg py-2 bg-primary-fixed border-b border-outline-variant flex items-center gap-2 text-label-md text-secondary">
               <Icon name="security" size={14} className="text-primary shrink-0" />
               Por segurança, não compartilhe contatos externos.
             </div>
@@ -164,7 +164,7 @@ function ChatContent() {
                       }`}
                     >
                       {m.isBlocked ? '🔒 Mensagem bloqueada (tentativa de contato externo)' : m.content}
-                      <div className={`text-[10px] mt-1 ${isMe ? 'text-on-primary/60' : 'text-secondary'}`}>
+                      <div className={`text-[10px] mt-1 ${isMe ? 'text-on-primary opacity-60' : 'text-secondary'}`}>
                         {formatRelative(m.createdAt)}
                       </div>
                     </div>

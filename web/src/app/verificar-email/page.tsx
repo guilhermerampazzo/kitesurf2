@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { authApi } from '@/lib/api'
 import { Icon } from '@/components/ui/Icon'
 import { Button } from '@/components/ui/Button'
-import { Logo } from '@/components/ui/Logo'
+import { AuthCardShell, StatusIcon } from '@/components/ui/AuthCardShell'
 
 function Content() {
   const params = useSearchParams()
@@ -23,15 +23,14 @@ function Content() {
 
   if (registered && !token) {
     return (
-      <div className="flex flex-col items-center gap-4 text-center">
-        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-          <Icon name="mail" size={32} className="text-primary" />
-        </div>
-        <h2 className="text-title-lg font-bold text-on-surface">Verifique seu e-mail</h2>
-        <p className="text-body-md text-secondary max-w-xs">
+      <div className="flex flex-col items-center gap-3 text-center">
+        <StatusIcon icon="mark_email_unread" tone="brand" />
+        <h2 className="text-title-lg font-display font-bold text-on-surface">Verifique seu e-mail</h2>
+        <p className="text-body-md text-on-surface-variant max-w-xs">
           Enviamos um link de verificação para o seu e-mail. Clique no link para ativar sua conta.
         </p>
         <p className="text-label-md text-outline">Não recebeu? Verifique sua caixa de spam.</p>
+        <Link href="/login" className="mt-2"><Button variant="accent" className="w-full">Ir para o login</Button></Link>
       </div>
     )
   }
@@ -47,26 +46,22 @@ function Content() {
 
   if (status === 'success') {
     return (
-      <div className="flex flex-col items-center gap-4 text-center">
-        <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
-          <Icon name="check_circle" filled size={32} className="text-green-600" />
-        </div>
-        <h2 className="text-title-lg font-bold text-on-surface">E-mail verificado!</h2>
-        <p className="text-body-md text-secondary">Sua conta foi ativada com sucesso. Bem-vindo ao KITE360º!</p>
-        <a href="/login"><Button>Fazer login</Button></a>
+      <div className="flex flex-col items-center gap-3 text-center">
+        <StatusIcon icon="check_circle" tone="success" />
+        <h2 className="text-title-lg font-display font-bold text-on-surface">E-mail verificado!</h2>
+        <p className="text-body-md text-on-surface-variant">Sua conta foi ativada com sucesso. Bem-vindo ao KITE360º!</p>
+        <Link href="/login" className="mt-2"><Button variant="accent" className="w-full">Fazer login</Button></Link>
       </div>
     )
   }
 
   if (status === 'error') {
     return (
-      <div className="flex flex-col items-center gap-4 text-center">
-        <div className="w-16 h-16 rounded-full bg-error-container flex items-center justify-center">
-          <Icon name="error" size={32} className="text-error" />
-        </div>
-        <h2 className="text-title-lg font-bold text-on-surface">Link inválido</h2>
-        <p className="text-body-md text-secondary">Este link de verificação expirou ou já foi utilizado.</p>
-        <Link href="/login" className="text-primary font-semibold hover:underline">Voltar ao login</Link>
+      <div className="flex flex-col items-center gap-3 text-center">
+        <StatusIcon icon="error" tone="error" />
+        <h2 className="text-title-lg font-display font-bold text-on-surface">Link inválido</h2>
+        <p className="text-body-md text-on-surface-variant">Este link de verificação expirou ou já foi utilizado.</p>
+        <Link href="/login" className="text-primary font-bold hover:text-accent-strong transition-colors">Voltar ao login</Link>
       </div>
     )
   }
@@ -76,13 +71,10 @@ function Content() {
 
 export default function VerificarEmailPage() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-background px-margin-mobile py-unit-xl">
-      <div className="w-full max-w-sm bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-xl shadow-lift text-center">
-        <div className="flex justify-center mb-unit-xl"><Logo size={54} /></div>
-        <Suspense>
-          <Content />
-        </Suspense>
-      </div>
-    </main>
+    <AuthCardShell title="Verificação de e-mail">
+      <Suspense>
+        <Content />
+      </Suspense>
+    </AuthCardShell>
   )
 }

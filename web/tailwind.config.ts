@@ -58,6 +58,13 @@ const config: Config = {
         'outline-variant':            'var(--color-outline-variant)',
         'surface-tint':               'var(--color-surface-tint)',
         'surface-variant':            'var(--color-surface-variant)',
+        // ── Tokens v2 — acento pôr-do-sol e oceano ──────────────────────────
+        'accent':                     'var(--accent)',
+        'accent-strong':              'var(--accent-strong)',
+        'accent-soft':                'var(--accent-soft)',
+        'accent-ink':                 'var(--accent-ink)',
+        'ocean':                      'var(--ocean)',
+        'ocean-deep':                 'var(--ocean-deep)',
       },
       borderRadius: {
         DEFAULT: '0.25rem',
@@ -65,6 +72,9 @@ const config: Config = {
         md:      '0.375rem',
         lg:      '0.5rem',
         xl:      '0.75rem',
+        '2xl':   '1rem',
+        '3xl':   '1.5rem',
+        card:    '20px',
         full:    '9999px',
       },
       spacing: {
@@ -80,6 +90,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ['Hanken Grotesk', 'sans-serif'],
+        display: ['Nunito', 'Hanken Grotesk', 'sans-serif'],
       },
       fontSize: {
         'display-lg':          ['48px', { lineHeight: '56px',  letterSpacing: '-0.02em', fontWeight: '700' }],

@@ -2,10 +2,9 @@
 import { useEffect, useState } from 'react'
 import { DashboardSidebar } from '@/components/layout/DashboardSidebar'
 import { ProductCard } from '@/components/ui/ProductCard'
-import { Icon } from '@/components/ui/Icon'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { favoritesApi, authApi } from '@/lib/api'
 import type { Listing, User } from '@/types'
-import Link from 'next/link'
 
 export default function FavoritosPage() {
   const [user, setUser] = useState<User | null>(null)
@@ -22,31 +21,31 @@ export default function FavoritosPage() {
     <div className="flex flex-col md:flex-row min-h-screen bg-background">
       <DashboardSidebar userName={user?.name} userAvatar={user?.avatar} />
 
-      <main className="flex-1 p-unit-xl overflow-auto">
+      <main className="flex-1 p-6 md:p-10 overflow-auto">
         <div className="max-w-5xl mx-auto">
-          <h1 className="text-headline-lg font-bold text-on-surface mb-unit-xl">Favoritos</h1>
+          <h1 className="text-headline-lg font-display font-black text-primary mb-2">
+            Meus <span className="accent-word">favoritos</span>
+          </h1>
+          <p className="text-body-md text-on-surface-variant mb-10">
+            {loading ? 'Carregando…' : `${favorites.length} ${favorites.length === 1 ? 'anúncio salvo' : 'anúncios salvos'}`}
+          </p>
 
           {loading ? (
-            <div className="flex items-center justify-center py-unit-xl">
+            <div className="flex items-center justify-center py-24">
               <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
           ) : favorites.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-unit-xl gap-4 text-center">
-              <Icon name="favorite" size={64} className="text-outline-variant" />
-              <h2 className="text-title-lg font-bold text-on-surface">Nenhum favorito ainda</h2>
-              <p className="text-body-md text-secondary">Salve anúncios interessantes para acompanhar depois.</p>
-              <Link href="/buscar" className="inline-flex items-center gap-2 bg-primary text-on-primary font-bold px-unit-lg py-3 rounded-lg hover:bg-primary-container transition-colors text-body-md">
-                <Icon name="search" size={18} />
-                Explorar anúncios
-              </Link>
-            </div>
+            <EmptyState
+              icon="favorite"
+              title="Nenhum favorito ainda"
+              description="Salve anúncios interessantes para acompanhar depois — o vento pode virar."
+              actionLabel="Explorar anúncios"
+              actionHref="/buscar"
+            />
           ) : (
-            <>
-              <p className="text-body-md text-secondary mb-unit-lg">{favorites.length} anúncios favoritados</p>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
-                {favorites.map((l) => <ProductCard key={l.id} listing={{ ...l, isFavorited: true }} />)}
-              </div>
-            </>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+              {favorites.map((l) => <ProductCard key={l.id} listing={{ ...l, isFavorited: true }} />)}
+            </div>
           )}
         </div>
       </main>

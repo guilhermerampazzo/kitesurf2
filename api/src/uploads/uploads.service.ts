@@ -1,11 +1,20 @@
 import { Injectable, BadRequestException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { join, extname } from 'path'
-import { mkdirSync, existsSync } from 'fs'
+import { mkdirSync, existsSync, writeFileSync } from 'fs'
 import * as sharp from 'sharp'
 import { v4 as uuid } from 'uuid'
 
 const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+const ALLOWED_VIDEO_MIME = [
+  'video/mp4',
+  'video/webm',
+  'video/ogg',
+  'video/quicktime',
+  'video/x-msvideo',
+  'video/x-matroska',
+]
+const VIDEO_MAX_MB = 50
 
 @Injectable()
 export class UploadsService {
@@ -52,6 +61,34 @@ export class UploadsService {
     return {
       url:   `${base}/${filename}`,
       thumb: `${base}/thumbs/${thumbName}`,
+    }
+  }
+
+  async saveVideo(
+    file: Express.Multer.File,
+    subdir = 'courses',
+  ): Promise<{ url: string; path: string }> {
+    if (!ALLOWED_VIDEO_MIME.includes(file.mimetype)) {
+      throw new BadRequestException(`Tipo de vídeo não permitido: ${file.mimetype}`)
+    }
+    if (file.size > VIDEO_MAX_MB * 1024 * 1024) {
+      throw new BadRequestException(
+        `Vídeo muito grande. Máximo ${VIDEO_MAX_MB}MB. Use YouTube para vídeos maiores.`,
+      )
+    }
+
+    const dir = join(this.uploadDir, subdir)
+    if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
+
+    const ext = extname(file.originalname) || '.mp4'
+    const id = uuid()
+    const filename = `${id}${ext}`
+    const filePath = join(dir, filename)
+    writeFileSync(filePath, file.buffer)
+
+    return {
+      url: `/uploads/${subdir}/${filename}`,
+      path: filePath,
     }
   }
 }

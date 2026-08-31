@@ -21,5 +21,6 @@ import { MailModule } from '../mail/mail.module'
   ],
   providers: [ChatService, ChatGateway, ContactFilterService],
   controllers: [ChatController],
+  exports: [ContactFilterService],
 })
 export class ChatModule {}

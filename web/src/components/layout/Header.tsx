@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { Icon } from '@/components/ui/Icon'
 import { Button } from '@/components/ui/Button'
@@ -9,13 +9,26 @@ import { Logo } from '@/components/ui/Logo'
 import Image from 'next/image'
 
 const CATEGORIES = [
-  { label: 'Home', href: '/' },
-  { label: 'Kitesurf', href: '/buscar?category=kitesurf' },
-  { label: 'Wingfoil', href: '/buscar?category=wingfoil' },
-  { label: 'Kitefoil', href: '/buscar?category=kitefoil' },
-  { label: 'Kitewave', href: '/buscar?category=kitewave' },
-  { label: 'Acessórios', href: '/buscar?category=acessorios' },
+  { label: 'Home', href: '/', icon: 'home' },
+  { label: 'Kitesurf', href: '/buscar?category=kitesurf', icon: 'air' },
+  { label: 'Wingfoil', href: '/buscar?category=wingfoil', icon: 'surfing' },
+  { label: 'Kitefoil', href: '/buscar?category=kitefoil', icon: 'tsunami' },
+  { label: 'Kitewave', href: '/buscar?category=kitewave', icon: 'waves' },
+  { label: 'Acessórios', href: '/buscar?category=acessorios', icon: 'build' },
 ]
+
+const VERTICALS = [
+  { label: 'Escola',     href: '/escola',     icon: 'school' },
+  { label: 'Treino',     href: '/treino',     icon: 'fitness_center' },
+  { label: 'Imóveis',    href: '/imoveis',    icon: 'home_work' },
+  { label: 'Hospedagem', href: '/hospedagem', icon: 'hotel' },
+  { label: 'Moda',       href: '/moda',       icon: 'apparel' },
+  { label: 'Veículos',   href: '/veiculos',   icon: 'directions_car' },
+  { label: 'Eventos',    href: '/eventos',    icon: 'event' },
+  { label: 'Serviços',   href: '/servicos',   icon: 'handyman' },
+]
+
+const ALL_NAV = [...CATEGORIES, ...VERTICALS]
 
 interface HeaderProps {
   user?: { id: string; name: string; avatar?: string } | null
@@ -24,6 +37,7 @@ interface HeaderProps {
 
 export function Header({ user, activeCategory }: HeaderProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const [query, setQuery] = useState('')
 
   function onSearch(e: React.FormEvent) {
@@ -31,26 +45,30 @@ export function Header({ user, activeCategory }: HeaderProps) {
     if (query.trim()) router.push(`/buscar?q=${encodeURIComponent(query.trim())}`)
   }
 
+  function isActive(href: string) {
+    if (activeCategory) return false
+    if (href === '/') return pathname === '/'
+    if (href.startsWith('/buscar')) return false
+    return pathname === href || pathname.startsWith(href + '/')
+  }
+
   return (
-    <header className="fixed top-0 w-full z-50 bg-surface-container-lowest border-b border-outline-variant">
+    <header className="fixed top-0 w-full z-50 header-blur backdrop-blur-md border-b border-outline-variant">
       <div className="flex flex-col w-full max-w-container mx-auto px-margin-desktop">
         {/* Main row */}
         <div className="flex items-center justify-between py-unit-sm gap-gutter">
-          {/* Logo */}
-          <Logo size={64} />
+          <Logo size={56} />
 
-          {/* Search */}
           <form onSubmit={onSearch} className="flex-1 max-w-3xl relative">
-            <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" size={20} />
+            <Icon name="search" className="absolute left-4 top-1/2 -translate-y-1/2 text-outline" size={20} />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Buscar kites, pranchas, wings..."
-              className="w-full h-10 pl-10 pr-4 bg-surface-container-low border border-outline-variant rounded-lg text-body-md focus:outline-none focus:border-primary transition-colors"
+              className="w-full h-11 pl-11 pr-4 bg-surface-container-low border border-transparent hover:border-outline-variant rounded-full text-body-md focus:outline-none focus:border-primary focus:bg-surface-container-lowest focus:shadow-[0_0_0_4px_rgba(31,71,123,0.12)] transition-all"
             />
           </form>
 
-          {/* Actions */}
           <div className="flex items-center gap-unit-sm">
             <ThemeToggle />
 
@@ -60,12 +78,15 @@ export function Header({ user, activeCategory }: HeaderProps) {
                   <Icon name="mail" size={22} className="text-secondary" />
                 </Link>
                 <Link href="/painel/anuncios/novo">
-                  <Button size="sm">Anunciar</Button>
+                  <Button variant="accent" size="sm">
+                    <Icon name="add" size={18} />
+                    Anunciar
+                  </Button>
                 </Link>
-                <Link href="/painel" className="w-9 h-9 rounded-full overflow-hidden border border-outline-variant">
+                <Link href="/painel" className="w-9 h-9 rounded-full overflow-hidden border-2 border-primary-fixed hover:border-accent transition-colors">
                   {user.avatar
                     ? <Image src={user.avatar} alt={user.name} width={36} height={36} className="w-full h-full object-cover" />
-                    : <div className="w-full h-full bg-primary flex items-center justify-center text-on-primary font-bold text-sm">
+                    : <div className="w-full h-full bg-brand-gradient flex items-center justify-center text-on-primary font-display font-bold text-sm">
                         {user.name[0].toUpperCase()}
                       </div>
                   }
@@ -77,28 +98,31 @@ export function Header({ user, activeCategory }: HeaderProps) {
                   <Button variant="ghost" size="sm">Entrar</Button>
                 </Link>
                 <Link href="/cadastro">
-                  <Button size="sm">Anunciar</Button>
+                  <Button variant="accent" size="sm">
+                    <Icon name="add" size={18} />
+                    Anunciar
+                  </Button>
                 </Link>
               </>
             )}
           </div>
         </div>
 
-        {/* Category nav */}
-        <nav className="flex items-center gap-unit-lg h-10 overflow-x-auto no-scrollbar">
-          {CATEGORIES.map((cat) => (
-            <Link
-              key={cat.href}
-              href={cat.href}
-              className={`text-body-md whitespace-nowrap py-2 transition-colors ${
-                activeCategory === cat.label
-                  ? 'active-nav-link'
-                  : 'text-secondary hover:text-primary'
-              }`}
-            >
-              {cat.label}
-            </Link>
-          ))}
+        {/* Category + Verticals nav — scrollable on mobile */}
+        <nav className="flex items-center gap-2 pb-2 overflow-x-auto no-scrollbar scroll-smooth">
+          {ALL_NAV.map((cat) => {
+            const active = activeCategory ? activeCategory === cat.label : isActive(cat.href)
+            return (
+              <Link
+                key={cat.href}
+                href={cat.href}
+                className={`nav-chip shrink-0 ${active ? 'nav-chip-active' : ''}`}
+              >
+                <Icon name={cat.icon} size={16} filled={active} />
+                {cat.label}
+              </Link>
+            )
+          })}
         </nav>
       </div>
     </header>

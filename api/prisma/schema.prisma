@@ -27,6 +27,7 @@ model User {
   emailVerifiedAt  DateTime?
   resetToken       String?
   resetTokenExpires DateTime?
+  asaasCustomerId  String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -40,6 +41,26 @@ model User {
   reportsGiven    Report[]       @relation("ReportReporter")
   subscriptions   Subscription[]
   refreshTokens   RefreshToken[]
+
+  // ── Novos verticais ──
+  courses         Course[]       @relation("CourseInstructor")
+  enrollments     Enrollment[]
+  lessonProgress  LessonProgress[]
+  trainerProfile  TrainerProfile?
+  trainingBookings TrainingBooking[]
+  properties      Property[]
+  accommodations  Accommodation[] @relation("AccommodationHost")
+  accommodationBookings AccommodationBooking[]
+  vehicles        Vehicle[]
+  blogPosts       BlogPost[]
+  fashionItems    FashionItem[]
+  events          Event[]        @relation("EventOrganizer")
+  eventOrders     EventOrder[]
+  eventTickets    EventTicket[]
+  services        ServiceOffering[]
+  serviceOrders   ServiceOrder[] @relation("ServiceBuyer")
+  serviceSales    ServiceOrder[] @relation("ServiceSeller")
+  payments        Payment[]
 
   @@index([email])
 }
@@ -79,12 +100,15 @@ model Listing {
   conversations Conversation[]
   boosts        Boost[]
   reports       Report[] @relation("ReportListing")
+  metadata      Json?
+  vertical      String   @default("marketplace") // marketplace | imoveis | veiculos | moda
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   @@index([status, isBoosted])
   @@index([category, status])
   @@index([sellerId])
+  @@index([vertical])
 }
 
 model ListingImage {
@@ -229,3 +253,578 @@ model Report {
   @@index([status])
   @@index([targetType, targetId])
 }
+
+// ── Commission Config (Admin) ─────────────────────────────────────────────
+model CommissionConfig {
+  id         String   @id @default(uuid())
+  module     String   @unique // kite_school | treino | imoveis | hospedagem | moda | veiculos | eventos | servicos | featured_event | boost
+  percentage Float    @default(10) // 0-100
+  fixedFee   Float    @default(0)
+  isActive   Boolean  @default(true)
+  updatedAt  DateTime @updatedAt
+  createdAt  DateTime @default(now())
+}
+
+// ── Kite School ───────────────────────────────────────────────────────────
+model CourseCategory {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  icon        String?
+  courses     Course[]
+  createdAt   DateTime @default(now())
+}
+
+model Course {
+  id            String   @id @default(uuid())
+  title         String
+  description   String
+  categoryId    String
+  category      CourseCategory @relation(fields: [categoryId], references: [id])
+  instructorId  String
+  instructor    User     @relation("CourseInstructor", fields: [instructorId], references: [id], onDelete: Cascade)
+  thumbnail     String?
+  price         Float    @default(0)
+  isFree        Boolean  @default(true)
+  freeLessons   Int      @default(0)
+  level         String   @default("iniciante") // iniciante | intermediario | avancado
+  language      String   @default("pt-BR")
+  status        String   @default("active") // draft | active | archived | moderation
+  commissionRate Float?  // override global, null = use CommissionConfig
+  totalDuration Int      @default(0) // seconds
+  totalLessons  Int      @default(0)
+  enrollCount   Int      @default(0)
+  rating        Float    @default(0)
+  reviewCount   Int      @default(0)
+  lessons       Lesson[]
+  enrollments   Enrollment[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([categoryId, status])
+  @@index([instructorId])
+  @@index([status, isFree])
+}
+
+model Lesson {
+  id          String   @id @default(uuid())
+  courseId    String
+  course      Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  videoUrl    String?  // local path /uploads/courses/... or youtube url
+  videoType   String   @default("upload") // upload | youtube
+  youtubeId   String?
+  duration    Int?     // seconds
+  order       Int      @default(0)
+  isPreview   Boolean  @default(false)
+  isFree      Boolean  @default(false)
+  progress    LessonProgress[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([courseId, order])
+}
+
+model Enrollment {
+  id               String   @id @default(uuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId         String
+  course           Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress         Float    @default(0)
+  completedLessons Int      @default(0)
+  paymentStatus    String   @default("free") // free | paid | pending | refunded
+  amountPaid       Float    @default(0)
+  commissionAmount Float    @default(0)
+  paymentId        String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+}
+
+model LessonProgress {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId       String
+  lesson         Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  isCompleted    Boolean  @default(false)
+  watchedSeconds Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([userId, lessonId])
+  @@index([userId])
+}
+
+// ── Treino ────────────────────────────────────────────────────────────────
+model TrainerProfile {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type          String   // academia | personal
+  businessName  String?
+  bio           String?
+  specialties   String[] // ex: ["musculacao","funcional","kite_fitness"]
+  city          String?
+  state         String?
+  address       String?
+  lat           Float?
+  lng           Float?
+  isVerified    Boolean  @default(false)
+  rating        Float    @default(0)
+  reviewCount   Int      @default(0)
+  services      TrainingService[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model TrainingService {
+  id              String                @id @default(uuid())
+  trainerId       String
+  trainer         TrainerProfile        @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  title           String
+  description     String?
+  category        String                // musculacao | funcional | cross | kite_fitness | saude
+  price           Float
+  duration        Int                   // minutes
+  maxParticipants Int                   @default(1)
+  isActive        Boolean               @default(true)
+  availabilities  TrainingAvailability[]
+  bookings        TrainingBooking[]
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  @@index([trainerId])
+  @@index([category, isActive])
+}
+
+model TrainingAvailability {
+  id           String          @id @default(uuid())
+  serviceId    String
+  service      TrainingService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  dayOfWeek    Int             // 0=domingo .. 6=sabado
+  startTime    String          // "08:00"
+  endTime      String          // "18:00"
+  slotDuration Int             @default(60)
+  isActive     Boolean         @default(true)
+
+  @@index([serviceId])
+}
+
+model TrainingBooking {
+  id               String          @id @default(uuid())
+  serviceId        String
+  service          TrainingService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date             DateTime        // specific date (00:00)
+  startTime        String          // "08:00"
+  endTime          String          // "09:00"
+  status           String          @default("pending") // pending | confirmed | cancelled | completed | no_show
+  price            Float
+  commissionAmount Float           @default(0)
+  paymentStatus    String          @default("pending") // pending | paid | refunded | failed
+  paymentId        String?
+  notes            String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([serviceId, date])
+  @@index([userId])
+  @@index([status])
+}
+
+// ── Imóveis ───────────────────────────────────────────────────────────────
+model Property {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  type        String   // casa | apartamento | terreno | comercial | kitnet | cobertura
+  purpose     String   // venda | aluguel
+  price       Float
+  bedrooms    Int?
+  bathrooms   Int?
+  suites      Int?
+  area        Float?   // m2
+  garageSpots Int?
+  city        String
+  state       String
+  address     String?
+  neighborhood String?
+  lat         Float?
+  lng         Float?
+  features    String[] // piscina, churrasqueira, mobilado etc
+  images      String[] // urls
+  sellerId    String
+  seller      User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  status      String   @default("active") // active | paused | sold | rented | moderation
+  isFeatured  Boolean  @default(false)
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([purpose, status])
+  @@index([city, state])
+  @@index([sellerId])
+  @@index([type, status])
+}
+
+// ── Hospedagem (Airbnb-like) ──────────────────────────────────────────────
+model Accommodation {
+  id            String   @id @default(uuid())
+  title         String
+  description   String
+  type          String   // hotel | pousada | casa_temporada | hostel | resort | chalé
+  city          String
+  state         String
+  address       String?
+  lat           Float?
+  lng           Float?
+  maxGuests     Int
+  bedrooms      Int
+  bathrooms     Int
+  amenities     String[] // wifi, ar, cozinha etc
+  images        String[] // urls
+  pricePerNight Float
+  cleaningFee   Float    @default(0)
+  minNights     Int      @default(1)
+  maxNights     Int?
+  isInstantBook Boolean  @default(true)
+  hostId        String
+  host          User     @relation("AccommodationHost", fields: [hostId], references: [id], onDelete: Cascade)
+  status        String   @default("active") // active | paused | moderation
+  isFeatured    Boolean  @default(false)
+  rating        Float    @default(0)
+  reviewCount   Int      @default(0)
+  viewCount     Int      @default(0)
+  bookings      AccommodationBooking[]
+  blockedDates  AccommodationBlockedDate[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([city, state])
+  @@index([type, status])
+  @@index([hostId])
+}
+
+model AccommodationBooking {
+  id               String        @id @default(uuid())
+  accommodationId  String
+  accommodation    Accommodation @relation(fields: [accommodationId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checkIn          DateTime
+  checkOut         DateTime
+  guests           Int
+  nights           Int
+  pricePerNight    Float
+  cleaningFee      Float
+  totalPrice       Float
+  commissionAmount Float         @default(0)
+  status           String        @default("pending") // pending | confirmed | cancelled | completed | refunded
+  paymentStatus    String        @default("pending") // pending | paid | refunded | failed
+  paymentId        String?
+  guestName        String?
+  guestPhone       String?
+  guestEmail       String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([accommodationId, checkIn, checkOut])
+  @@index([userId])
+  @@index([status])
+}
+
+model AccommodationBlockedDate {
+  id              String        @id @default(uuid())
+  accommodationId String
+  accommodation   Accommodation @relation(fields: [accommodationId], references: [id], onDelete: Cascade)
+  date            DateTime
+  reason          String?       // maintenance | personal | external_booking
+
+  @@unique([accommodationId, date])
+}
+
+// ── Veículos ──────────────────────────────────────────────────────────────
+model Vehicle {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  type        String   // carro | moto | lancha | jetski | quadriciclo | trailer
+  brand       String?
+  model       String?
+  year        Int?
+  mileage     Int?     // km
+  fuel        String?  // gasolina | diesel | eletrico | flex | hibrido
+  transmission String? // manual | automatico | cvt
+  color       String?
+  city        String
+  state       String
+  price       Float
+  images      String[]
+  features    String[]
+  sellerId    String
+  seller      User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  status      String   @default("active")
+  isFeatured  Boolean  @default(false)
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([type, status])
+  @@index([city, state])
+  @@index([sellerId])
+}
+
+// ── Moda ──────────────────────────────────────────────────────────────────
+model BlogPost {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  excerpt     String?
+  content     String   // html from Tiptap
+  coverImage  String?
+  category    String   @default("moda") // moda | kite_style | tendencia | entrevista
+  tags        String[]
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  status      String   @default("published") // draft | published | archived
+  viewCount   Int      @default(0)
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category, status])
+  @@index([slug])
+}
+
+model FashionItem {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  category    String   // camiseta | bermuda | biquini | bone | wet_suit | acessorio
+  brand       String?
+  size        String?  // P | M | G | GG | 38 | 40
+  color       String?
+  condition   String   @default("new") // new | used
+  price       Float
+  images      String[]
+  sellerId    String
+  seller      User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  status      String   @default("active")
+  isFeatured  Boolean  @default(false)
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category, status])
+  @@index([sellerId])
+}
+
+// ── Eventos (Sympla-like) ─────────────────────────────────────────────────
+model Event {
+  id            String   @id @default(uuid())
+  title         String
+  description   String
+  coverImage    String?
+  images        String[]
+  category      String   // kitesurf | musica | gastronomia | esporte | workshop
+  type          String   @default("comum") // oficial | destaque | comum
+  city          String
+  state         String
+  address       String?
+  venue         String?
+  lat           Float?
+  lng           Float?
+  startDate     DateTime
+  endDate       DateTime?
+  startTime     String?  // "14:00"
+  organizerId   String
+  organizer     User     @relation("EventOrganizer", fields: [organizerId], references: [id], onDelete: Cascade)
+  organizerName String?
+  socialLinks   Json?    // { instagram, facebook, whatsapp, site }
+  status        String   @default("active") // draft | active | cancelled | moderation
+  isFeatured    Boolean  @default(false)
+  featuredPaid  Boolean  @default(false) // pagou R$99,90?
+  featuredExpiresAt DateTime?
+  maxAttendees  Int?
+  viewCount     Int      @default(0)
+  ticketTypes   TicketType[]
+  orders        EventOrder[]
+  tickets       EventTicket[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([type, status])
+  @@index([city, state])
+  @@index([startDate])
+  @@index([organizerId])
+}
+
+model TicketType {
+  id          String   @id @default(uuid())
+  eventId     String
+  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  name        String   // "Inteira", "Meia", "VIP", "Lote 1"
+  description String?
+  price       Float    // 0 = gratis
+  quantity    Int      // total disponivel
+  sold        Int      @default(0)
+  maxPerUser  Int      @default(5)
+  salesStart  DateTime?
+  salesEnd    DateTime?
+  requiresInfo Json?   // campos extras a coletar: ["cpf","nascimento","camisa"]
+  status      String   @default("active") // active | sold_out | paused
+  orders      EventOrderItem[]
+  tickets     EventTicket[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([eventId])
+}
+
+model EventOrder {
+  id               String           @id @default(uuid())
+  eventId          String
+  event            Event            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  buyerId          String
+  buyer            User             @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  totalAmount      Float
+  commissionAmount Float            @default(0)
+  status           String           @default("pending") // pending | paid | cancelled | refunded
+  paymentStatus    String           @default("pending") // pending | paid | failed | refunded
+  paymentId        String?
+  paymentMethod    String?          // pix | card | free
+  buyerInfo        Json?            // info coletada no checkout
+  items            EventOrderItem[]
+  tickets          EventTicket[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@index([eventId])
+  @@index([buyerId])
+  @@index([status])
+}
+
+model EventOrderItem {
+  id           String     @id @default(uuid())
+  orderId      String
+  order        EventOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  ticketTypeId String
+  ticketType   TicketType @relation(fields: [ticketTypeId], references: [id])
+  quantity     Int
+  unitPrice    Float
+  attendeeInfo Json?      // array de {nome, cpf, email} por ingresso
+}
+
+model EventTicket {
+  id           String     @id @default(uuid())
+  orderId      String
+  order        EventOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  eventId      String
+  event        Event      @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  ticketTypeId String
+  ticketType   TicketType @relation(fields: [ticketTypeId], references: [id])
+  holderId     String?
+  holder       User?      @relation(fields: [holderId], references: [id])
+  holderName   String?
+  holderEmail  String?
+  qrCode       String   @unique // uuid for QR
+  backupCode   String   @unique // 6-digit alphanumeric
+  status       String   @default("valid") // valid | used | cancelled
+  checkedInAt  DateTime?
+  checkedInBy  String?  // userId do staff que fez checkin
+  createdAt    DateTime @default(now())
+
+  @@index([eventId, status])
+  @@index([qrCode])
+  @@index([backupCode])
+}
+
+// ── Serviços ──────────────────────────────────────────────────────────────
+model ServiceOffering {
+  id           String   @id @default(uuid())
+  title        String
+  description  String
+  category     String   // fotografia | video | manutencao | design | aula | consultoria | outro
+  pricingType  String   // fixed | hourly | daily
+  price        Float    // price per unit (fixed or per hour/day)
+  minHours     Int?     // mínimo de horas se hourly
+  maxHours     Int?
+  city         String
+  state        String
+  images       String[]
+  sellerId     String
+  seller       User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  status       String   @default("active") // active | paused | moderation
+  isFeatured   Boolean  @default(false)
+  rating       Float    @default(0)
+  reviewCount  Int      @default(0)
+  viewCount    Int      @default(0)
+  orders       ServiceOrder[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category, status])
+  @@index([sellerId])
+}
+
+model ServiceOrder {
+  id               String          @id @default(uuid())
+  serviceId        String
+  service          ServiceOffering @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  buyerId          String
+  buyer            User            @relation("ServiceBuyer", fields: [buyerId], references: [id], onDelete: Cascade)
+  sellerId         String
+  seller           User            @relation("ServiceSeller", fields: [sellerId], references: [id], onDelete: Cascade)
+  quantity         Float           // horas ou unidades
+  unitPrice        Float
+  totalPrice       Float
+  commissionAmount Float           @default(0)
+  status           String          @default("pending") // pending | confirmed | in_progress | completed | cancelled | refunded
+  paymentStatus    String          @default("pending") // pending | paid | refunded | failed
+  paymentId        String?
+  scheduledDate    DateTime?
+  notes            String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([serviceId])
+  @@index([buyerId])
+  @@index([sellerId])
+  @@index([status])
+}
+
+// ── Payments (ASAAS) ──────────────────────────────────────────────────────
+model Payment {
+  id               String   @id @default(uuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  module           String   // kite_school | treino | hospedagem | eventos | servicos | featured_event | imoveis | veiculos | moda
+  referenceId      String   // id da entidade (courseId, bookingId, orderId etc)
+  amount           Float
+  commissionAmount Float    @default(0)
+  netAmount        Float    // amount - commission
+  status           String   @default("pending") // pending | paid | failed | refunded | cancelled
+  method           String?  // pix | card | boleto | free
+  asaasId          String?  // id no ASAAS
+  asaasStatus      String?
+  pixQrCode        String?
+  pixCopyPaste     String?
+  dueDate          DateTime?
+  paidAt           DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([userId])
+  @@index([module, referenceId])
+  @@index([status])
+}
+
+

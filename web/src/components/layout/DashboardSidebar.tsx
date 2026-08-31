@@ -33,10 +33,10 @@ export function DashboardSidebar({ userName, userAvatar }: DashboardSidebarProps
         href={item.href}
         onClick={() => setOpen(false)}
         className={cn(
-          'flex items-center gap-3 px-unit-lg py-3 text-body-md transition-colors',
+          'flex items-center gap-3 mx-3 my-0.5 px-4 py-2.5 rounded-full text-body-md font-semibold transition-all',
           active
-            ? 'bg-primary/10 text-primary font-bold border-r-2 border-primary'
-            : 'text-on-surface-variant hover:bg-surface-container'
+            ? 'bg-brand-gradient text-white shadow-soft'
+            : 'text-on-surface-variant hover:bg-surface-container hover:text-primary'
         )}
       >
         <Icon name={item.icon} filled={active} size={20} />
@@ -52,7 +52,7 @@ export function DashboardSidebar({ userName, userAvatar }: DashboardSidebarProps
         localStorage.removeItem('kite_refresh_token')
         window.location.href = '/login'
       }}
-      className="flex items-center gap-3 text-body-md text-secondary hover:text-error transition-colors w-full"
+      className="flex items-center gap-3 text-body-md font-semibold text-secondary hover:text-error transition-colors w-full"
     >
       <Icon name="logout" size={20} />
       Sair
@@ -71,7 +71,7 @@ export function DashboardSidebar({ userName, userAvatar }: DashboardSidebarProps
           >
             <Icon name={open ? 'close' : 'menu'} size={24} className="text-on-surface" />
           </button>
-          <Link href="/" className="text-lg font-black text-primary">KITE360º</Link>
+          <Link href="/" className="text-lg font-display font-black text-primary">KITE360<span className="text-accent-strong">º</span></Link>
           {userName && (
             <div className="ml-auto w-9 h-9 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-sm overflow-hidden shrink-0">
               {userAvatar
@@ -106,14 +106,14 @@ export function DashboardSidebar({ userName, userAvatar }: DashboardSidebarProps
       </div>
 
       {/* ── Desktop sidebar ── */}
-      <aside className="hidden md:flex w-64 shrink-0 bg-surface-container-lowest border-r border-outline-variant min-h-full flex-col">
-        <div className="p-unit-lg border-b border-outline-variant">
-          <Link href="/" className="text-xl font-black text-primary">KITE360º</Link>
+      <aside className="hidden md:flex w-64 shrink-0 bg-surface-container-lowest border-r border-outline-variant min-h-full flex-col py-4">
+        <div className="px-6 pb-4">
+          <Link href="/" className="text-2xl font-display font-black text-primary tracking-tight">KITE360<span className="text-accent-strong">º</span></Link>
         </div>
 
         {userName && (
-          <div className="flex items-center gap-3 p-unit-lg border-b border-outline-variant">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold overflow-hidden shrink-0">
+          <div className="flex items-center gap-3 mx-3 mb-4 p-3 rounded-2xl bg-surface-container-low">
+            <div className="w-11 h-11 rounded-full bg-brand-gradient flex items-center justify-center text-on-primary font-display font-bold overflow-hidden shrink-0">
               {userAvatar
                 ? <img src={userAvatar} alt={userName} className="w-full h-full object-cover" />
                 : userName[0].toUpperCase()
@@ -128,7 +128,7 @@ export function DashboardSidebar({ userName, userAvatar }: DashboardSidebarProps
 
         <nav className="flex flex-col py-unit-sm flex-1">{navLinks}</nav>
 
-        <div className="p-unit-lg border-t border-outline-variant">{logoutBtn}</div>
+        <div className="p-6 border-t border-outline-variant">{logoutBtn}</div>
       </aside>
     </>
   )

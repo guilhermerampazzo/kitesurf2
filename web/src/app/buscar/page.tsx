@@ -1,10 +1,9 @@
-'use client'
-
-import { Suspense } from 'react'
 import { Header } from '@/components/layout/Header'
 import { Footer } from '@/components/layout/Footer'
 import { ProductCard } from '@/components/ui/ProductCard'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { BannerSlot } from '@/components/ads/BannerSlot'
+import { Icon } from '@/components/ui/Icon'
 import type { Listing, PaginatedResponse } from '@/types'
 import Link from 'next/link'
 
@@ -42,22 +41,25 @@ const SORT_OPTIONS = [
   { value: 'price_desc',label: 'Maior preço' },
 ]
 
+const filterField =
+  'w-full bg-surface-container-low border border-transparent rounded-xl px-3 py-2 text-body-md text-on-surface focus:outline-none focus:border-primary focus:bg-surface-container-lowest transition-all'
+
 export default async function BuscarPage({ searchParams }: SearchPageProps) {
   const result = await search(searchParams)
 
   return (
     <>
-      <Header />
-      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop mb-unit-xl">
+      <Header activeCategory={searchParams.category ? searchParams.category.charAt(0).toUpperCase() + searchParams.category.slice(1) : undefined} />
+      <main className="header-offset w-full max-w-container mx-auto px-margin-desktop pb-24">
         <div className="flex gap-gutter">
           {/* Filters sidebar */}
-          <aside className="hidden lg:flex flex-col gap-unit-lg w-64 shrink-0">
-            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg">
-              <h3 className="text-label-md uppercase tracking-wider text-on-surface-variant mb-unit-md">Categoria</h3>
-              <div className="flex flex-col gap-2">
+          <aside className="hidden lg:flex flex-col gap-4 w-64 shrink-0">
+            <div className="card-soft p-5">
+              <h3 className="text-label-md uppercase tracking-wider font-display font-bold text-on-surface-variant mb-3">Categoria</h3>
+              <div className="flex flex-col gap-1">
                 <Link
                   href={`/buscar?${new URLSearchParams({ ...searchParams, category: '' })}`}
-                  className={`text-body-md py-1 ${!searchParams.category ? 'text-primary font-bold' : 'text-secondary hover:text-primary'}`}
+                  className={`text-body-md py-1.5 px-3 -mx-3 rounded-full transition-colors ${!searchParams.category ? 'bg-brand-gradient text-white font-bold' : 'text-secondary hover:text-primary hover:bg-surface-container'}`}
                 >
                   Todas
                 </Link>
@@ -65,7 +67,7 @@ export default async function BuscarPage({ searchParams }: SearchPageProps) {
                   <Link
                     key={c}
                     href={`/buscar?${new URLSearchParams({ ...searchParams, category: c.toLowerCase() })}`}
-                    className={`text-body-md py-1 ${searchParams.category === c.toLowerCase() ? 'text-primary font-bold' : 'text-secondary hover:text-primary'}`}
+                    className={`text-body-md py-1.5 px-3 -mx-3 rounded-full transition-colors ${searchParams.category === c.toLowerCase() ? 'bg-brand-gradient text-white font-bold' : 'text-secondary hover:text-primary hover:bg-surface-container'}`}
                   >
                     {c}
                   </Link>
@@ -73,52 +75,36 @@ export default async function BuscarPage({ searchParams }: SearchPageProps) {
               </div>
             </div>
 
-            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg">
-              <h3 className="text-label-md uppercase tracking-wider text-on-surface-variant mb-unit-md">Condição</h3>
-              <div className="flex flex-col gap-2">
+            <div className="card-soft p-5">
+              <h3 className="text-label-md uppercase tracking-wider font-display font-bold text-on-surface-variant mb-3">Condição</h3>
+              <div className="flex gap-2">
                 {[['', 'Todos'], ['new', 'Novo'], ['used', 'Usado']].map(([val, label]) => (
-                  <label key={val} className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="condition"
-                      defaultChecked={searchParams.condition === val || (!searchParams.condition && val === '')}
-                      className="w-4 h-4 text-primary"
-                      onChange={() => {
-                        const p = new URLSearchParams(searchParams as Record<string, string>)
-                        val ? p.set('condition', val) : p.delete('condition')
-                        window?.history?.pushState({}, '', `/buscar?${p}`)
-                      }}
-                    />
-                    <span className="text-body-md text-on-surface">{label}</span>
-                  </label>
+                  <Link
+                    key={val}
+                    href={`/buscar?${new URLSearchParams({ ...searchParams, condition: val })}`}
+                    className={`flex-1 text-center text-body-md py-2 rounded-full font-semibold border transition-all ${
+                      (searchParams.condition ?? '') === val
+                        ? 'border-transparent bg-primary-fixed text-on-primary-fixed'
+                        : 'border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary'
+                    }`}
+                  >
+                    {label}
+                  </Link>
                 ))}
               </div>
             </div>
 
-            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg">
-              <h3 className="text-label-md uppercase tracking-wider text-on-surface-variant mb-unit-md">Preço</h3>
+            <div className="card-soft p-5">
+              <h3 className="text-label-md uppercase tracking-wider font-display font-bold text-on-surface-variant mb-3">Preço (R$)</h3>
               <div className="flex gap-2">
-                <input
-                  type="number"
-                  placeholder="Min"
-                  defaultValue={searchParams.priceMin}
-                  className="w-full border border-outline-variant rounded-lg px-2 py-2 text-body-md bg-surface-container-lowest focus:outline-none focus:border-primary"
-                />
-                <input
-                  type="number"
-                  placeholder="Max"
-                  defaultValue={searchParams.priceMax}
-                  className="w-full border border-outline-variant rounded-lg px-2 py-2 text-body-md bg-surface-container-lowest focus:outline-none focus:border-primary"
-                />
+                <input type="number" placeholder="Mín" defaultValue={searchParams.priceMin} className={filterField} />
+                <input type="number" placeholder="Máx" defaultValue={searchParams.priceMax} className={filterField} />
               </div>
             </div>
 
-            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg">
-              <h3 className="text-label-md uppercase tracking-wider text-on-surface-variant mb-unit-md">Estado</h3>
-              <select
-                defaultValue={searchParams.state ?? ''}
-                className="w-full border border-outline-variant rounded-lg px-3 py-2 text-body-md bg-surface-container-lowest focus:outline-none focus:border-primary"
-              >
+            <div className="card-soft p-5">
+              <h3 className="text-label-md uppercase tracking-wider font-display font-bold text-on-surface-variant mb-3">Estado</h3>
+              <select defaultValue={searchParams.state ?? ''} className={`${filterField} cursor-pointer`}>
                 <option value="">Todos</option>
                 {STATES.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
@@ -127,51 +113,49 @@ export default async function BuscarPage({ searchParams }: SearchPageProps) {
 
           {/* Results */}
           <div className="flex-1 min-w-0">
-            {/* Toolbar */}
-            <div className="flex items-center justify-between mb-unit-lg flex-wrap gap-3">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
               <div>
-                <h1 className="text-headline-md font-bold text-on-surface">
-                  {searchParams.q ? `Resultados para "${searchParams.q}"` : searchParams.category ? searchParams.category.charAt(0).toUpperCase() + searchParams.category.slice(1) : 'Todos os anúncios'}
+                <h1 className="text-headline-lg font-display font-black text-primary">
+                  {searchParams.q ? <>Resultados para <span className="accent-word">"{searchParams.q}"</span></> : searchParams.category ? searchParams.category.charAt(0).toUpperCase() + searchParams.category.slice(1) : 'Todos os anúncios'}
                 </h1>
-                <p className="text-body-md text-secondary">{result.total} anúncios encontrados</p>
+                <p className="text-body-md text-on-surface-variant mt-1">{result.total} anúncios encontrados</p>
               </div>
-              <div className="flex items-center gap-3">
-                <label className="text-body-md text-secondary">Ordenar:</label>
+              <label className="flex items-center gap-2 text-body-md text-secondary">
+                <span className="hidden sm:inline">Ordenar:</span>
                 <select
                   defaultValue={searchParams.sortBy ?? 'relevance'}
-                  className="border border-outline-variant rounded-lg px-3 py-2 text-body-md bg-surface-container-lowest focus:outline-none focus:border-primary"
+                  className="bg-surface-container-lowest border border-outline-variant rounded-full px-4 py-2 text-body-md text-on-surface focus:outline-none focus:border-primary cursor-pointer font-semibold"
                 >
                   {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
-              </div>
+              </label>
             </div>
 
-            {/* Top banner */}
-            <BannerSlot slot="top" className="w-full h-20 mb-unit-lg" />
+            <BannerSlot slot="top" className="w-full h-20 mb-6 rounded-card overflow-hidden" />
 
-            {/* Grid */}
             {result.data.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-unit-xl gap-4 text-center">
-                <span className="material-symbols-outlined text-6xl text-outline-variant">search_off</span>
-                <h2 className="text-title-lg font-bold text-on-surface">Nenhum anúncio encontrado</h2>
-                <p className="text-body-md text-secondary">Tente outros termos ou remova alguns filtros.</p>
-              </div>
+              <EmptyState
+                icon="search_off"
+                title="Nenhum anúncio encontrado"
+                description="Tente outros termos ou remova alguns filtros para ampliar a busca."
+                actionLabel="Limpar e ver tudo"
+                actionHref="/buscar"
+              />
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-gutter">
+              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
                 {result.data.map((l) => <ProductCard key={l.id} listing={l} />)}
               </div>
             )}
 
-            {/* Pagination */}
             {result.totalPages > 1 && (
-              <div className="flex justify-center gap-2 mt-unit-xl">
+              <div className="flex justify-center gap-2 mt-12">
                 {Array.from({ length: result.totalPages }, (_, i) => i + 1).map((p) => (
                   <Link
                     key={p}
                     href={`/buscar?${new URLSearchParams({ ...searchParams, page: String(p) })}`}
-                    className={`w-9 h-9 flex items-center justify-center rounded-lg text-body-md border transition-colors ${
+                    className={`w-10 h-10 flex items-center justify-center rounded-full text-body-md font-display font-bold border transition-colors ${
                       result.page === p
-                        ? 'bg-primary text-on-primary border-primary'
+                        ? 'bg-brand-gradient text-white border-transparent'
                         : 'border-outline-variant hover:border-primary text-on-surface'
                     }`}
                   >

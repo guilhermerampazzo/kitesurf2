@@ -26,14 +26,14 @@ export default function VerificacaoContaPage() {
 
       <main className="flex-1 p-unit-xl overflow-auto">
         <div className="max-w-2xl mx-auto">
-          <h1 className="text-headline-lg font-bold text-on-surface mb-unit-sm">Verificação de Conta</h1>
+          <h1 className="text-headline-lg font-display font-black text-primary mb-unit-sm">Verificação de Conta</h1>
           <p className="text-body-md text-secondary mb-unit-xl">
             Complete a verificação para obter o Selo Verificado e aumentar sua credibilidade com compradores.
           </p>
 
           {/* Badge */}
           {user?.isVerified && (
-            <div className="bg-primary/5 border border-primary/20 rounded-xl p-unit-lg mb-unit-xl flex items-center gap-4">
+            <div className="bg-primary-fixed border border-outline-variant rounded-xl p-unit-lg mb-unit-xl flex items-center gap-4">
               <Icon name="verified" filled size={40} className="text-primary" />
               <div>
                 <div className="text-title-lg font-bold text-primary">Conta Verificada!</div>
@@ -47,7 +47,7 @@ export default function VerificacaoContaPage() {
             {STEPS.map((step, i) => {
               const done = step.id === 'email' ? true : user?.isVerified
               return (
-                <div key={step.id} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg">
+                <div key={step.id} className="card-soft p-unit-lg">
                   <div className="flex items-center gap-unit-md">
                     <div className={`w-12 h-12 rounded-full flex items-center justify-center ${done ? 'bg-green-100' : 'bg-surface-container'}`}>
                       {done

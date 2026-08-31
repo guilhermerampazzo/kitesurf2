@@ -78,7 +78,7 @@ export default function AdminBannersPage() {
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-unit-xl">
             <div>
-              <h1 className="text-headline-lg font-bold text-on-surface">Gestor de Banners</h1>
+              <h1 className="text-headline-lg font-display font-black text-primary">Gestor de Banners</h1>
               <p className="text-body-md text-secondary">Gerencie campanhas publicitárias e banners rotativos</p>
             </div>
             <Button onClick={() => setModalOpen(true)}>
@@ -91,7 +91,7 @@ export default function AdminBannersPage() {
               <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
           ) : (
-            <div className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden">
+            <div className="card-soft overflow-hidden">
               <table className="w-full">
                 <thead className="bg-surface-container border-b border-outline-variant">
                   <tr>
@@ -159,7 +159,7 @@ export default function AdminBannersPage() {
             <label className="text-label-md text-on-surface uppercase tracking-wider">Imagem do banner</label>
             <div
               onClick={() => fileRef.current?.click()}
-              className="border-2 border-dashed border-outline-variant rounded-xl p-unit-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all"
+              className="border-2 border-dashed border-outline-variant rounded-xl p-unit-lg flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary-fixed transition-all"
             >
               {imageFile ? (
                 <img src={URL.createObjectURL(imageFile)} alt="" className="max-h-32 rounded-lg object-contain" />

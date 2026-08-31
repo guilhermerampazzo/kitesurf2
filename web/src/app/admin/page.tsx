@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 import { useEffect, useState } from 'react'
 import { AdminSidebar } from '@/components/layout/AdminSidebar'
 import { Icon } from '@/components/ui/Icon'
@@ -47,8 +47,8 @@ export default function AdminPage() {
       <main className="flex-1 p-unit-xl overflow-auto">
         <div className="max-w-5xl mx-auto">
           <div className="mb-unit-xl">
-            <h1 className="text-headline-lg font-bold text-on-surface">Painel Administrativo</h1>
-            <p className="text-body-md text-secondary">Visão geral da plataforma</p>
+            <h1 className="text-headline-lg font-display font-black text-primary section-rule inline-block">Painel Administrativo</h1>
+            <p className="text-body-md text-secondary mt-4">Visão geral da plataforma</p>
           </div>
 
           {!stats ? (
@@ -60,11 +60,11 @@ export default function AdminPage() {
               {/* Stats grid */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-unit-md mb-unit-xl">
                 {STAT_CARDS.map((c) => (
-                  <div key={c.label} className="bg-surface-container-lowest border border-outline-variant rounded-xl p-unit-lg">
+                  <div key={c.label} className="card-soft p-unit-lg">
                     <div className={`w-10 h-10 rounded-lg ${c.bg} flex items-center justify-center mb-3`}>
                       <Icon name={c.icon} size={22} className={c.color} />
                     </div>
-                    <div className="text-headline-md font-bold text-on-surface">{c.value}</div>
+                    <div className="text-headline-md font-display font-black text-on-surface">{c.value}</div>
                     <div className="text-label-md text-secondary uppercase tracking-wider mt-1">{c.label}</div>
                   </div>
                 ))}
