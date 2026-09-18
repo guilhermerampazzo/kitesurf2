@@ -19,11 +19,15 @@ export default function VerificacaoContaPage() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
+    let cancelled = false
     authApi.me()
-      .then((r) => setUser(r.data))
-      .catch((err) => {
-        if (err?.response?.status === 401) router.replace('/login')
+      .then((r) => { if (!cancelled) setUser(r.data) })
+      .catch(() => {
+        if (cancelled) return
+        try { router.replace('/login') }
+        catch { window.location.href = '/login' }
       })
+    return () => { cancelled = true }
   }, [router])
 
   return (

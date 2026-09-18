@@ -40,10 +40,7 @@ api.interceptors.response.use(
         localStorage.removeItem('kite_refresh_token')
       }
       if (!isPublicAuth && !path.startsWith('/login')) {
-        window.location.href = '/login'
-        // Swallow the rejection: navigation already started, avoids
-        // unhandled promise rejections (pageerror) on guarded pages
-        return new Promise(() => {})
+        try { window.location.href = '/login' } catch { /* noop */ }
       }
     }
     return Promise.reject(error)

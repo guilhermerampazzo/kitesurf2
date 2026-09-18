@@ -14,12 +14,19 @@ export default function FavoritosPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    let cancelled = false
     Promise.all([authApi.me(), favoritesApi.list()])
-      .then(([u, f]) => { setUser(u.data); setFavorites(f.data ?? []) })
-      .catch((err) => {
-        if (err?.response?.status === 401) router.replace('/login')
+      .then(([u, f]) => {
+        if (cancelled) return
+        setUser(u.data); setFavorites(f.data ?? [])
       })
-      .finally(() => setLoading(false))
+      .catch(() => {
+        if (cancelled) return
+        try { router.replace('/login') }
+        catch { window.location.href = '/login' }
+      })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
   }, [router])
 
   return (
