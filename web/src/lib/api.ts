@@ -20,6 +20,10 @@ api.interceptors.response.use(
   (res) => res,
   async (error) => {
     if (error.response?.status === 401 && typeof window !== 'undefined') {
+      // Public auth flows must never be kicked to /login (would break UX)
+      const path = window.location.pathname
+      const isPublicAuth = ['/login', '/cadastro', '/recuperar-senha', '/redefinir-senha', '/verificar-email']
+        .some((p) => path === p || path.startsWith(p + '/'))
       const refresh = localStorage.getItem('kite_refresh_token')
       if (refresh) {
         try {
@@ -30,8 +34,16 @@ api.interceptors.response.use(
         } catch {
           localStorage.removeItem('kite_access_token')
           localStorage.removeItem('kite_refresh_token')
-          window.location.href = '/login'
         }
+      } else {
+        localStorage.removeItem('kite_access_token')
+        localStorage.removeItem('kite_refresh_token')
+      }
+      if (!isPublicAuth && !path.startsWith('/login')) {
+        window.location.href = '/login'
+        // Swallow the rejection: navigation already started, avoids
+        // unhandled promise rejections (pageerror) on guarded pages
+        return new Promise(() => {})
       }
     }
     return Promise.reject(error)
