@@ -32,7 +32,13 @@ export default function LoginPage() {
       const res = await authApi.login({ ...data })
       localStorage.setItem('kite_access_token', res.data.accessToken)
       localStorage.setItem('kite_refresh_token', res.data.refreshToken)
-      router.push('/painel')
+      // volta para a página que exigiu login (ex.: /imoveis/criar)
+      let next = '/painel'
+      try {
+        const q = new URLSearchParams(window.location.search).get('next')
+        if (q && q.startsWith('/') && !q.startsWith('//')) next = q
+      } catch { /* mantém /painel */ }
+      router.push(next)
     } catch (err: unknown) {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
       toast.error(msg ?? 'E-mail ou senha incorretos.')

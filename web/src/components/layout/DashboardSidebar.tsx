@@ -16,6 +16,19 @@ const NAV = [
   { label: 'Configurações',   href: '/configuracoes',       icon: 'settings' },
 ]
 
+// Atalhos de cadastro dos módulos (mesmos do menu do header)
+const MODULE_NAV = [
+  { label: 'Anunciar gear',   href: '/painel/anuncios/novo', icon: 'add_circle' },
+  { label: 'Criar curso',     href: '/escola/criar',         icon: 'school' },
+  { label: 'Criar treino',    href: '/treino/criar',         icon: 'fitness_center' },
+  { label: 'Anunciar imóvel', href: '/imoveis/criar',        icon: 'home_work' },
+  { label: 'Anunciar hospedagem', href: '/hospedagem/criar', icon: 'hotel' },
+  { label: 'Criar publicação', href: '/moda/criar',          icon: 'apparel' },
+  { label: 'Anunciar veículo', href: '/veiculos/criar',      icon: 'directions_car' },
+  { label: 'Criar evento',    href: '/eventos/criar',        icon: 'event' },
+  { label: 'Oferecer serviço', href: '/servicos/criar',      icon: 'handyman' },
+]
+
 interface DashboardSidebarProps {
   userName?: string
   userAvatar?: string
@@ -41,6 +54,26 @@ export function DashboardSidebar({ userName, userAvatar }: DashboardSidebarProps
       >
         <Icon name={item.icon} filled={active} size={20} />
         {item.label}
+      </Link>
+    )
+  })
+
+  const renderModuleLinks = (onNavigate?: () => void) => MODULE_NAV.map((item) => {
+    const active = pathname === item.href || pathname.startsWith(item.href)
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        onClick={onNavigate}
+        className={cn(
+          'flex items-center gap-3 mx-3 my-0.5 px-4 py-2 rounded-full text-body-md transition-all',
+          active
+            ? 'bg-brand-gradient text-white shadow-soft font-semibold'
+            : 'text-on-surface-variant hover:bg-surface-container hover:text-primary font-medium'
+        )}
+      >
+        <Icon name={item.icon} filled={active} size={19} />
+        <span className="truncate">{item.label}</span>
       </Link>
     )
   })
@@ -100,6 +133,10 @@ export function DashboardSidebar({ userName, userAvatar }: DashboardSidebarProps
               </div>
             )}
             <nav className="flex flex-col py-1">{navLinks}</nav>
+            <div className="px-7 pt-3 pb-1 text-label-md font-display font-bold uppercase tracking-wider text-secondary">
+              Anunciar
+            </div>
+            <nav className="flex flex-col pb-2">{renderModuleLinks(() => setOpen(false))}</nav>
             <div className="px-unit-lg py-3 border-t border-outline-variant">{logoutBtn}</div>
           </div>
         )}
@@ -127,6 +164,11 @@ export function DashboardSidebar({ userName, userAvatar }: DashboardSidebarProps
         )}
 
         <nav className="flex flex-col py-unit-sm flex-1">{navLinks}</nav>
+
+        <div className="px-7 pt-2 pb-1 text-label-md font-display font-bold uppercase tracking-wider text-secondary">
+          Anunciar
+        </div>
+        <nav className="flex flex-col pb-3">{renderModuleLinks()}</nav>
 
         <div className="p-6 border-t border-outline-variant">{logoutBtn}</div>
       </aside>

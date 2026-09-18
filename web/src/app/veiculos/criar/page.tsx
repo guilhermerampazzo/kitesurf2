@@ -1,11 +1,12 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { DashboardSidebar } from '@/components/layout/DashboardSidebar'
 import { Button } from '@/components/ui/Button'
 import { Input, Select, Textarea } from '@/components/ui/Input'
 import { Icon } from '@/components/ui/Icon'
 import { TiptapEditor } from '@/components/editor/TiptapEditor'
+import { useRequireAuth } from '@/hooks/useRequireAuth'
 import { vehiclesApi } from '@/lib/api'
 import toast from 'react-hot-toast'
 
@@ -38,12 +39,7 @@ const STATES_BR = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','
 
 export default function CriarVeiculoPage() {
   const router = useRouter()
-  useEffect(() => {
-    if (!localStorage.getItem('kite_access_token')) {
-      toast.error('Faça login para anunciar.')
-      router.push('/login')
-    }
-  }, [router])
+  const { checking } = useRequireAuth()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [type, setType] = useState('carro')
@@ -126,6 +122,14 @@ export default function CriarVeiculoPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (checking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
   }
 
   return (

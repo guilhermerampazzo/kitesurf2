@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button'
 import { Input, Select } from '@/components/ui/Input'
 import { Icon } from '@/components/ui/Icon'
 import { TiptapEditor } from '@/components/editor/TiptapEditor'
+import { useRequireAuth } from '@/hooks/useRequireAuth'
 import { listingsApi } from '@/lib/api'
 import toast from 'react-hot-toast'
 
@@ -15,6 +16,7 @@ const STATES_BR = ['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','
 
 export default function NovoAnuncioPage() {
   const router = useRouter()
+  const { checking } = useRequireAuth()
   const [title, setTitle] = useState('')
   const [category, setCategory] = useState('kitesurf')
   const [brand, setBrand] = useState('duotone')
@@ -75,6 +77,14 @@ export default function NovoAnuncioPage() {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
       toast.error(msg ?? 'Erro ao criar anúncio.')
     } finally { setLoading(false) }
+  }
+
+  if (checking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
   }
 
   return (

@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/Button'
 import { Input, Select, Textarea } from '@/components/ui/Input'
 import { Icon } from '@/components/ui/Icon'
 import { TiptapEditor } from '@/components/editor/TiptapEditor'
-import { eventsApi, authApi } from '@/lib/api'
+import { useRequireAuth } from '@/hooks/useRequireAuth'
+import { eventsApi } from '@/lib/api'
 import toast from 'react-hot-toast'
 
 const CATEGORIES = [
@@ -63,14 +64,11 @@ export default function CriarEventoPage() {
   const [coverFile, setCoverFile] = useState<File | null>(null)
   const [imageFiles, setImageFiles] = useState<FileList | null>(null)
 
+  const { checking, user } = useRequireAuth()
+
   useEffect(() => {
-    if (!localStorage.getItem('kite_access_token')) {
-      toast.error('Faça login para criar eventos.')
-      router.push('/login')
-      return
-    }
-    authApi.me().then((r) => setIsAdmin(!!r.data.isAdmin)).catch(() => {})
-  }, [router])
+    if (user) setIsAdmin(!!user.isAdmin)
+  }, [user])
 
   async function uploadImage(file: File): Promise<string> {
     const fd = new FormData()
@@ -167,6 +165,14 @@ export default function CriarEventoPage() {
       const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
       toast.error(msg ?? 'Erro ao criar ingresso.')
     } finally { setTicketLoading(false) }
+  }
+
+  if (checking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
   }
 
   return (

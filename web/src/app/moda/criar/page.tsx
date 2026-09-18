@@ -1,11 +1,12 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { DashboardSidebar } from '@/components/layout/DashboardSidebar'
 import { Button } from '@/components/ui/Button'
 import { Input, Select, Textarea } from '@/components/ui/Input'
 import { Icon } from '@/components/ui/Icon'
 import { TiptapEditor } from '@/components/editor/TiptapEditor'
+import { useRequireAuth } from '@/hooks/useRequireAuth'
 import { blogApi, fashionApi } from '@/lib/api'
 import toast from 'react-hot-toast'
 
@@ -31,12 +32,7 @@ const FASHION_CATEGORIES = [
 
 export default function ModaCriarPage() {
   const router = useRouter()
-  useEffect(() => {
-    if (!localStorage.getItem('kite_access_token')) {
-      toast.error('Faça login para publicar.')
-      router.push('/login')
-    }
-  }, [router])
+  const { checking } = useRequireAuth()
   const [activeTab, setActiveTab] = useState<'blog' | 'fashion'>('blog')
 
   // Blog state
@@ -156,6 +152,14 @@ export default function ModaCriarPage() {
     } finally {
       setFLoading(false)
     }
+  }
+
+  if (checking) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    )
   }
 
   return (
