@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { DashboardSidebar } from '@/components/layout/DashboardSidebar'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/Icon'
@@ -13,12 +14,17 @@ const STEPS = [
 ]
 
 export default function VerificacaoContaPage() {
+  const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    authApi.me().then((r) => setUser(r.data))
-  }, [])
+    authApi.me()
+      .then((r) => setUser(r.data))
+      .catch((err) => {
+        if (err?.response?.status === 401) router.replace('/login')
+      })
+  }, [router])
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background">

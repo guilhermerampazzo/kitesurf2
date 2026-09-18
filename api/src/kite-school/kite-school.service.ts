@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   BadRequestException,
   ConflictException,
+  OnModuleInit,
 } from '@nestjs/common'
 import { PrismaService } from '../prisma.module'
 import { CommissionService } from '../commission/commission.service'
@@ -21,12 +22,30 @@ function slugify(input: string): string {
 }
 
 @Injectable()
-export class KiteSchoolService {
+export class KiteSchoolService implements OnModuleInit {
   constructor(
     private prisma: PrismaService,
     private commissionService: CommissionService,
     private asaasService: AsaasService,
   ) {}
+
+  // Default categories, seeded idempotently on boot so course creation
+  // never breaks on fresh/prod databases without manual seeding.
+  async onModuleInit() {
+    const defaults = [
+      { name: 'Kitesurf', slug: 'kitesurf', description: 'Cursos de kitesurf do básico ao avançado' },
+      { name: 'Wingfoil', slug: 'wingfoil', description: 'Cursos de wingfoil do básico ao avançado' },
+      { name: 'Kitefoil', slug: 'kitefoil', description: 'Cursos de kitefoil e hydrofoil' },
+      { name: 'Kitewave', slug: 'kitewave', description: 'Cursos de kitewave e surf com kite' },
+    ]
+    for (const c of defaults) {
+      await this.prisma.courseCategory.upsert({
+        where: { slug: c.slug },
+        update: {},
+        create: c,
+      }).catch(() => null)
+    }
+  }
 
   // ── Categories ────────────────────────────────────────────────────────────
 

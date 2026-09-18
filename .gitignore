@@ -48,3 +48,6 @@ web/package-lock.json
 # Arquivos temporários de desenvolvimento
 atual.md
 imagens/
+
+# Evidencias E2E locais
+ evidencias-e2e/

@@ -15,6 +15,12 @@ export class BannersController {
     return this.banners.getForSlot(slot)
   }
 
+  // Compatibility with web client (`/banners/slot/:slot`)
+  @Get('slot/:slot')
+  getForSlotByPath(@Param('slot') slot: string) {
+    return this.banners.getForSlot(slot)
+  }
+
   @Post(':id/impression')
   @HttpCode(204)
   impression(@Param('id') id: string) {

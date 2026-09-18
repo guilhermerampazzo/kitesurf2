@@ -353,9 +353,16 @@ export class EventsService {
   }
 
   async delete(id: string, userId: string, isAdmin: boolean) {
-    const event = await this.checkOwnerOrAdmin(id, userId, isAdmin)
-    // cascade deletes ticketTypes, orders, tickets via prisma? TicketType will cascade, but safer to delete
-    await this.prisma.event.delete({ where: { id } })
+    await this.checkOwnerOrAdmin(id, userId, isAdmin)
+    // Explicit delete order (EventOrderItem -> TicketType has no DB cascade,
+    // so deleting the event directly fails with FK violation when tickets were sold)
+    await this.prisma.$transaction([
+      this.prisma.eventTicket.deleteMany({ where: { eventId: id } }),
+      this.prisma.eventOrderItem.deleteMany({ where: { order: { eventId: id } } }),
+      this.prisma.eventOrder.deleteMany({ where: { eventId: id } }),
+      this.prisma.ticketType.deleteMany({ where: { eventId: id } }),
+      this.prisma.event.delete({ where: { id } }),
+    ])
     return { deleted: true }
   }
 

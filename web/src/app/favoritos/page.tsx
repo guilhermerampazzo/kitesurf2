@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { DashboardSidebar } from '@/components/layout/DashboardSidebar'
 import { ProductCard } from '@/components/ui/ProductCard'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -7,6 +8,7 @@ import { favoritesApi, authApi } from '@/lib/api'
 import type { Listing, User } from '@/types'
 
 export default function FavoritosPage() {
+  const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [favorites, setFavorites] = useState<Listing[]>([])
   const [loading, setLoading] = useState(true)
@@ -14,8 +16,11 @@ export default function FavoritosPage() {
   useEffect(() => {
     Promise.all([authApi.me(), favoritesApi.list()])
       .then(([u, f]) => { setUser(u.data); setFavorites(f.data ?? []) })
+      .catch((err) => {
+        if (err?.response?.status === 401) router.replace('/login')
+      })
       .finally(() => setLoading(false))
-  }, [])
+  }, [router])
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background">
