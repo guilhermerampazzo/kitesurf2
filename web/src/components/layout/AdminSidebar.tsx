@@ -12,6 +12,7 @@ const NAV = [
   { label: 'Anúncios',       href: '/admin/anuncios',        icon: 'sell' },
   { label: 'Planos',         href: '/admin/planos',          icon: 'workspace_premium' },
   { label: 'Comissões',      href: '/admin/comissoes',       icon: 'percent' },
+  { label: 'Buber',          href: '/admin/buber',           icon: 'local_taxi' },
 ]
 
 export function AdminSidebar() {

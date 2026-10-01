@@ -27,6 +27,7 @@ import { AccommodationsModule } from './accommodations/accommodations.module'
 import { VehiclesModule } from './vehicles/vehicles.module'
 import { BlogModule } from './blog/blog.module'
 import { FashionModule } from './fashion/fashion.module'
+import { BuberModule } from './buber/buber.module'
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { FashionModule } from './fashion/fashion.module'
     BlogModule,
     FashionModule,
     ServicesOfferingModule,
+    BuberModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

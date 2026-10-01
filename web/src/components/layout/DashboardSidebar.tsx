@@ -37,6 +37,9 @@ interface DashboardSidebarProps {
 export function DashboardSidebar({ userName, userAvatar }: DashboardSidebarProps) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const [publishOpen, setPublishOpen] = useState(
+    () => pathname.includes('/criar') || pathname.includes('/novo')
+  )
 
   const navLinks = NAV.map((item) => {
     const active = pathname === item.href || (item.href !== '/painel' && pathname.startsWith(item.href))
@@ -77,6 +80,32 @@ export function DashboardSidebar({ userName, userAvatar }: DashboardSidebarProps
       </Link>
     )
   })
+
+  const publishActive = MODULE_NAV.some(
+    (item) => pathname === item.href || pathname.startsWith(item.href)
+  )
+
+  const publishToggle = (
+    <button
+      type="button"
+      aria-expanded={publishOpen}
+      onClick={() => setPublishOpen((v: boolean) => !v)}
+      className={cn(
+        'flex items-center gap-3 mx-3 my-0.5 px-4 py-2.5 rounded-full text-body-md font-semibold transition-all w-[calc(100%-24px)]',
+        publishActive || publishOpen
+          ? 'bg-surface-container text-primary'
+          : 'text-on-surface-variant hover:bg-surface-container hover:text-primary'
+      )}
+    >
+      <Icon name="add_circle" filled={publishActive || publishOpen} size={20} />
+      <span className="flex-1 text-left">Publicar</span>
+      <Icon
+        name="expand_more"
+        size={20}
+        className={cn('transition-transform', publishOpen && 'rotate-180')}
+      />
+    </button>
+  )
 
   const logoutBtn = (
     <button
@@ -133,10 +162,12 @@ export function DashboardSidebar({ userName, userAvatar }: DashboardSidebarProps
               </div>
             )}
             <nav className="flex flex-col py-1">{navLinks}</nav>
-            <div className="px-7 pt-3 pb-1 text-label-md font-display font-bold uppercase tracking-wider text-secondary">
-              Anunciar
+            <div className="pt-1">
+              {publishToggle}
+              {publishOpen && (
+                <nav className="flex flex-col pb-2">{renderModuleLinks(() => setOpen(false))}</nav>
+              )}
             </div>
-            <nav className="flex flex-col pb-2">{renderModuleLinks(() => setOpen(false))}</nav>
             <div className="px-unit-lg py-3 border-t border-outline-variant">{logoutBtn}</div>
           </div>
         )}
@@ -165,10 +196,12 @@ export function DashboardSidebar({ userName, userAvatar }: DashboardSidebarProps
 
         <nav className="flex flex-col py-unit-sm flex-1">{navLinks}</nav>
 
-        <div className="px-7 pt-2 pb-1 text-label-md font-display font-bold uppercase tracking-wider text-secondary">
-          Anunciar
+        <div className="pb-3">
+          {publishToggle}
+          {publishOpen && (
+            <nav className="flex flex-col">{renderModuleLinks()}</nav>
+          )}
         </div>
-        <nav className="flex flex-col pb-3">{renderModuleLinks()}</nav>
 
         <div className="p-6 border-t border-outline-variant">{logoutBtn}</div>
       </aside>

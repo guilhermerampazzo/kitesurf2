@@ -132,3 +132,23 @@ export const fashionApi = { list: (params?: Record<string, string | number>)=>ap
 export const eventsApi = { list: (params?: Record<string, string | number | boolean>)=>api.get('/events',{params}), get: (id: string)=>api.get(`/events/${id}`), create: (body: unknown)=>api.post('/events', body), update: (id: string,body: unknown)=>api.put(`/events/${id}`, body), createTicketType: (eventId: string, body: unknown)=>api.post(`/events/${eventId}/ticket-types`, body), listTicketTypes: (eventId: string)=>api.get(`/events/${eventId}/ticket-types`), updateTicketType: (eventId: string, ticketTypeId: string, body: unknown)=>api.put(`/events/${eventId}/ticket-types/${ticketTypeId}`, body), deleteTicketType: (eventId: string, ticketTypeId: string)=>api.delete(`/events/${eventId}/ticket-types/${ticketTypeId}`), createOrder: (eventId: string, body: unknown)=>api.post(`/events/${eventId}/orders`, body), myOrders: (params?: Record<string, string|number>)=>api.get('/events/orders/mine',{params}), listTickets: (eventId: string, params?: Record<string, string|number>)=>api.get(`/events/${eventId}/tickets`,{params}), listEventOrders: (eventId: string, params?: Record<string, string|number>)=>api.get(`/events/${eventId}/orders`,{params}), checkin: (body: unknown)=>api.post('/events/tickets/checkin', body), payFeatured: (eventId: string, body: unknown)=>api.post(`/events/${eventId}/featured/pay`, body) }
 export const servicesApi = { list: (params?: Record<string, string | number>)=>api.get('/services',{params}), get: (id: string)=>api.get(`/services/${id}`), create: (body: unknown)=>api.post('/services', body), orders: { create: (serviceId: string, body: unknown)=>api.post(`/services/${serviceId}/orders`, body), mine: ()=>api.get('/services/orders/mine'), received: ()=>api.get('/services/orders/received') } }
 export const paymentsApi = { create: (body: unknown)=>api.post('/payments', body), mine: ()=>api.get('/payments/mine'), confirm: (id: string)=>api.post(`/payments/${id}/confirm`) }
+
+export const buberApi = {
+  fare:          () => api.get('/buber/fare'),
+  estimate:      (body: { originLat: number; originLng: number; destLat: number; destLng: number }) => api.post('/buber/estimate', body),
+  registerDriver:(body: { cnh?: string; vehicleModel?: string; vehiclePlate?: string; vehicleColor?: string; vehicleSeats?: number }) => api.post('/buber/drivers/register', body),
+  updateDriverMe:(body: unknown) => api.patch('/buber/drivers/me', body),
+  goOnline:      (body: { isOnline: boolean; lat?: number; lng?: number }) => api.post('/buber/drivers/me/online', body),
+  availableRides:() => api.get('/buber/rides/available'),
+  createRide:    (body: { originLabel: string; originLat: number; originLng: number; destLabel: string; destLat: number; destLng: number }) => api.post('/buber/rides', body),
+  myRides:       () => api.get('/buber/rides/mine'),
+  acceptRide:    (id: string) => api.post(`/buber/rides/${id}/accept`),
+  rideStatus:    (id: string, status: string) => api.post(`/buber/rides/${id}/status`, { status }),
+  createRoute:   (body: { title: string; originLabel: string; destLabel: string; stops?: string[]; departsAt: string; seatsTotal: number; pricePerSeat: number }) => api.post('/buber/routes', body),
+  listRoutes:    () => api.get('/buber/routes'),
+  bookRoute:     (id: string, seats: number) => api.post(`/buber/routes/${id}/book`, { seats }),
+  adminDrivers:  () => api.get('/buber/admin/drivers'),
+  adminDriverStatus:(id: string, status: string) => api.post(`/buber/admin/drivers/${id}/status`, { status }),
+  adminFareGet:  () => api.get('/buber/admin/fare'),
+  adminFarePut:  (body: unknown) => api.put('/buber/admin/fare', body),
+}

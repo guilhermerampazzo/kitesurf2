@@ -61,6 +61,8 @@ model User {
   serviceOrders   ServiceOrder[] @relation("ServiceBuyer")
   serviceSales    ServiceOrder[] @relation("ServiceSeller")
   payments        Payment[]
+  buberDriver     BuberDriver?
+  buberRides      BuberRide[]
 
   @@index([email])
 }
@@ -825,6 +827,98 @@ model Payment {
   @@index([userId])
   @@index([module, referenceId])
   @@index([status])
+}
+
+// ── Buber (ride-hailing + caronas) ─────────────────────────────────────────
+model BuberDriver {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status       String   @default("pending") // pending | approved | blocked
+  cnh          String?
+  vehicleModel String?
+  vehiclePlate String?
+  vehicleColor String?
+  vehicleSeats Int      @default(4)
+  isOnline     Boolean  @default(false)
+  currentLat   Float?
+  currentLng   Float?
+  rating       Float    @default(0)
+  rideCount    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  rides        BuberRide[] @relation("DriverRides")
+  routes       BuberRoute[]
+}
+
+model BuberRide {
+  id          String   @id @default(uuid())
+  passengerId String
+  passenger   User     @relation(fields: [passengerId], references: [id], onDelete: Cascade)
+  driverId    String?
+  driver      BuberDriver? @relation("DriverRides", fields: [driverId], references: [id], onDelete: SetNull)
+  originLabel String
+  originLat   Float
+  originLng   Float
+  destLabel   String
+  destLat     Float
+  destLng     Float
+  distanceKm  Float
+  durationMin Float
+  price       Float
+  status      String   @default("requested") // requested | accepted | arriving | ongoing | completed | cancelled
+  paymentId   String?
+  cancelFee   Float    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+  @@index([passengerId])
+  @@index([driverId])
+}
+
+model BuberRoute {
+  id         String   @id @default(uuid())
+  driverId   String
+  driver     BuberDriver @relation(fields: [driverId], references: [id], onDelete: Cascade)
+  title      String
+  originLabel String
+  destLabel  String
+  stops      Json?
+  departsAt  DateTime
+  seatsTotal Int
+  seatsTaken Int      @default(0)
+  pricePerSeat Float
+  status     String   @default("active") // active | cancelled | done
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  bookings   BuberBooking[]
+
+  @@index([status, departsAt])
+}
+
+model BuberBooking {
+  id          String   @id @default(uuid())
+  routeId     String
+  route       BuberRoute @relation(fields: [routeId], references: [id], onDelete: Cascade)
+  passengerId String
+  seats       Int      @default(1)
+  totalPrice  Float
+  status      String   @default("confirmed") // confirmed | cancelled
+  paymentId   String?
+  createdAt   DateTime @default(now())
+
+  @@index([routeId])
+}
+
+model BuberFareConfig {
+  id         String   @id @default(uuid())
+  minFare    Float    @default(8)
+  pricePerKm Float    @default(2.5)
+  pricePerMin Float   @default(0.35)
+  cancelFee  Float    @default(4)
+  isActive   Boolean  @default(true)
+  updatedAt  DateTime @updatedAt
 }
 
 

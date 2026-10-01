@@ -156,6 +156,25 @@ async function main() {
   }
 
   console.log('Seed concluído: 1 vendedor + 8 anúncios criados.')
+
+  // ── Buber: tarifa + comissão ──
+  const existingFare = await prisma.buberFareConfig.findFirst({ where: { isActive: true } })
+  if (existingFare) {
+    await prisma.buberFareConfig.update({
+      where: { id: existingFare.id },
+      data: { minFare: 8, pricePerKm: 2.5, pricePerMin: 0.35, cancelFee: 4, isActive: true },
+    })
+  } else {
+    await prisma.buberFareConfig.create({
+      data: { minFare: 8, pricePerKm: 2.5, pricePerMin: 0.35, cancelFee: 4, isActive: true },
+    })
+  }
+  await prisma.commissionConfig.upsert({
+    where: { module: 'buber' },
+    update: { percentage: 15, fixedFee: 0, isActive: true },
+    create: { module: 'buber', percentage: 15, fixedFee: 0, isActive: true },
+  })
+  console.log('Seed Buber: fare config + commissionConfig(buber) garantidos.')
 }
 
 main()
